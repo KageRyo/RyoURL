@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Url
 
-# Register your models here.
+class UrlAdmin(admin.ModelAdmin):
+    list_display = ('oriUrl', 'srtUrl', 'creDate')
+
+admin.site.register(Url, UrlAdmin)
