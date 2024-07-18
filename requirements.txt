@@ -1,0 +1,9 @@
+Django==4.2
+Pillow
+python-dotenv
+django-ninja
+django-cors-headers
+sentry-sdk
+pytest
+pytest-django
+django-silk

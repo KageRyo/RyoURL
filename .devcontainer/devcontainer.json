@@ -1,0 +1,19 @@
+{
+    "name": "RyoURL Container",
+    "build": {
+      "dockerfile": "Dockerfile",
+      "context": ".."
+    },
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "batisteo.vscode-django",
+        "junstyle.vscode-django-support",
+        "GitHub.copilot-chat",
+        "GitHub.copilot",
+        "donjayamanne.python-extension-pack"
+    ],
+    "settings": {
+      "python.pythonPath": "/usr/local/bin/python"
+    },
+}
