@@ -1,5 +1,5 @@
 # RyoURL
-RyoURL 是基於 Django 開發的短網址生成服務，使用者能夠創建短網址、查詢原始短網址及查看所有短網址。  
+RyoURL 是基於 Django 開發的短網址產生服務，使用者能夠創建短網址、查詢原始短網址及查看所有短網址。  
 能夠搭配 [RyoUrl-frontend](https://github.com/KageRyo/RyoURL-frontend) 使用。  
 
 ## API
