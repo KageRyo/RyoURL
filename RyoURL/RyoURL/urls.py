@@ -20,12 +20,13 @@ from django.contrib import admin
 from django.urls import include, path
 
 from shortURL.api import api
-from shortURL.views import index
+#from shortURL.views import index
 
 urlpatterns = \
     [
         path('admin/', admin.site.urls),
         path('shortURL/', include('shortURL.urls')),
         path('api/', api.urls),
-        path('', index)
+        path('<str:strUrl>/', include('shortURL.urls')),
+        #path('', index)
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

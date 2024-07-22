@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import index
+from .views import redirectShortUrl
 
 urlpatterns = [
-    path('', index, name='index'),
+    path('', redirectShortUrl, name='redirectShortUrl'),
 ]
