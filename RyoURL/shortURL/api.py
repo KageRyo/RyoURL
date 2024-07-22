@@ -32,6 +32,9 @@ def createShortUrl(request, oriUrl: str):
     return url
 
 # GET : 以縮短網址查詢原網址 API /lookforOriUrl/{srtUrl}
-
+@api.get('lookforOriUrl/{srtUrl}', response=UrlSchema)
+def lookforOriUrl(request, srtUrl: str):
+    url = Url.objects.get(srtUrl=srtUrl)
+    return url
 
 # GET : 查詢所有短網址 API /getAllUrl
