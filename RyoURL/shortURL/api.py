@@ -38,3 +38,7 @@ def lookforOriUrl(request, srtUrl: str):
     return url
 
 # GET : 查詢所有短網址 API /getAllUrl
+@api.get('getAllUrl', response=List[UrlSchema])
+def getAllUrl(request):
+    url = Url.objects.all()
+    return url
