@@ -29,6 +29,12 @@ def geneShortUrl(length = 6):
 def handleShortUrl(request, srtStr):
     domain = request.build_absolute_uri('/')[:-1].strip('/')
     return f'{domain}/{srtStr}'
+
+# 檢查 http 前綴的函式
+def checkHttpFormat(oriUrl):
+    if not (oriUrl.startswith('http://') or oriUrl.startswith('https://')):
+        return f'http://{oriUrl}'
+    return oriUrl
     
 # GET : 首頁 API /
 @api.get("/")
@@ -38,8 +44,10 @@ def index(request):
 # POST : 新增短網址 API /creatShortUrl
 @api.post("createShortUrl", response=UrlSchema)
 def createShortUrl(request, oriUrl: str):
-    srtStr = geneShortUrl()
-    srtUrl = handleShortUrl(request, srtStr)
+    oriUrl = checkHttpFormat(oriUrl)            # 檢查 http 前綴
+    srtStr = geneShortUrl()                     # 產生隨機短網址字符串
+    srtUrl = handleShortUrl(request, srtStr)    # 處理短網址域名
+    # 建立新的短網址並儲存進資料庫
     url = Url.objects.create(
         oriUrl = oriUrl,
         srtStr = srtStr,
