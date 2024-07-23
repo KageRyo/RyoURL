@@ -7,9 +7,9 @@ from shortURL.api import UrlSchema
 # 新增短網址 API 測試
 # API：creatShortUrl [POST]
 @pytest.mark.django_db
-def test_creatShortUrl(client):
+def test_createShortUrl(client):
     response = client.post(
-        '/api/creatShortUrl?oriUrl=https://www.google.com'
+        '/api/createShortUrl?oriUrl=https://www.google.com'
     )
     assert response.status_code == 200
     response_data = UrlSchema(**response.json())

@@ -22,7 +22,7 @@ def geneShortUrl(length = 6):
             return srtUrl   # 如果短網址不存在 DB 中，則回傳此短網址
     
 # POST : 新增短網址 API /creatShortUrl
-@api.post("creatShortUrl", response=UrlSchema)
+@api.post("createShortUrl", response=UrlSchema)
 def createShortUrl(request, oriUrl: str):
     url = Url.objects.create(
         oriUrl=oriUrl,
