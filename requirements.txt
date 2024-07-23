@@ -1,9 +1,19 @@
+# Django 和相關依賴
 Django==4.2
-Pillow
-python-dotenv
 django-ninja
 django-cors-headers
-sentry-sdk
+
+# 工具
+python-dotenv
+requests
+
+# 測試
 pytest
 pytest-django
+
+# 監控與除錯
+sentry-sdk
 django-silk
+
+# 圖片處理
+Pillow
