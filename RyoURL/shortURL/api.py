@@ -40,6 +40,7 @@ def createShortUrl(request, oriUrl: str):
     return url
 
 # GET : 以縮短網址查詢原網址 API /lookforOriUrl/{srtUrl}
+@api.get('lookforOriUrl/{srtUrl}', response=UrlSchema)
 def lookforOriUrl(request, srtUrl: str):
     try:
         url = Url.objects.get(srtUrl=srtUrl)
