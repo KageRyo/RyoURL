@@ -69,6 +69,26 @@ def createShortUrl(request, oriUrl: str):
         )
         return url
 
+# POST : 新增自訂短網址 API /creatCustomShortUrl
+@api.post("createCustomShortUrl", response=UrlSchema)
+def createCustomShortUrl(request, oriUrl: str, srtStr: str):
+    oriUrl = checkHttpFormat(oriUrl)            # 檢查 http 前綴
+    srtUrl = handleShortUrl(request, srtStr)    # 處理短網址域名
+    # 如果 URL 無效，則回傳 404
+    if not checkUrlAvailable(oriUrl):
+        return HttpResponse('URL 不存在或無法存取，請檢查是否出錯。', status=404)
+    elif Url.objects.filter(srtUrl=srtUrl).exists():
+        return HttpResponse('自訂短網址已存在，請更換其他短網址。', status=406)
+    else:
+        # 建立新的短網址並儲存進資料庫
+        url = Url.objects.create(
+            oriUrl = oriUrl,
+            srtStr = srtStr,
+            srtUrl = srtUrl,
+            creDate = datetime.datetime.now()
+        )
+        return url
+
 # GET : 以縮短網址字符查詢原網址 API /lookforOriUrl/{srtStr}
 @api.get('lookforOriUrl/{srtStr}', response=UrlSchema)
 def lookforOriUrl(request, srtStr: str):
