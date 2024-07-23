@@ -1,8 +1,11 @@
 import random
 import string
 import datetime
-from typing import List, Optional
+
+from typing import List
+from django.http import HttpResponse
 from ninja import NinjaAPI, Schema
+
 from .models import Url
 
 api = NinjaAPI()    # 初始化 API
@@ -21,6 +24,11 @@ def geneShortUrl(length = 6):
         if not Url.objects.filter(srtUrl=srtUrl).exists():
             return srtUrl   # 如果短網址不存在 DB 中，則回傳此短網址
     
+# GET : 首頁 API /
+@api.get("/")
+def index(request):
+    return "已與 RyoURL 建立連線。"
+    
 # POST : 新增短網址 API /creatShortUrl
 @api.post("createShortUrl", response=UrlSchema)
 def createShortUrl(request, oriUrl: str):
@@ -32,9 +40,11 @@ def createShortUrl(request, oriUrl: str):
     return url
 
 # GET : 以縮短網址查詢原網址 API /lookforOriUrl/{srtUrl}
-@api.get('lookforOriUrl/{srtUrl}', response=UrlSchema)
 def lookforOriUrl(request, srtUrl: str):
-    url = Url.objects.get(srtUrl=srtUrl)
+    try:
+        url = Url.objects.get(srtUrl=srtUrl)
+    except Url.DoesNotExist:
+        return HttpResponse('URL not found', status=404)
     return url
 
 # GET : 查詢所有短網址 API /getAllUrl
