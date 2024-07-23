@@ -1,6 +1,7 @@
 import random
 import string
 import datetime
+import requests
 
 from typing import List
 from django.http import HttpResponse
@@ -29,6 +30,20 @@ def geneShortUrl(length = 6):
 def handleShortUrl(request, srtStr):
     domain = request.build_absolute_uri('/')[:-1].strip('/')
     return f'{domain}/{srtStr}'
+
+# 檢查 http 前綴的函式
+def checkHttpFormat(oriUrl):
+    if not (oriUrl.startswith('http://') or oriUrl.startswith('https://')):
+        return f'http://{oriUrl}'
+    return oriUrl
+
+# 檢查 URL 是否有效的函式
+def checkUrlAvailable(oriUrl):
+    try:
+        response = requests.head(oriUrl, allow_redirects=True, timeout=5)
+        return response.status_code == 200
+    except:
+        return False
     
 # GET : 首頁 API /
 @api.get("/")
@@ -38,15 +53,21 @@ def index(request):
 # POST : 新增短網址 API /creatShortUrl
 @api.post("createShortUrl", response=UrlSchema)
 def createShortUrl(request, oriUrl: str):
-    srtStr = geneShortUrl()
-    srtUrl = handleShortUrl(request, srtStr)
-    url = Url.objects.create(
-        oriUrl = oriUrl,
-        srtStr = srtStr,
-        srtUrl = srtUrl,
-        creDate = datetime.datetime.now()
-    )
-    return url
+    oriUrl = checkHttpFormat(oriUrl)            # 檢查 http 前綴
+    srtStr = geneShortUrl()                     # 產生隨機短網址字符串
+    srtUrl = handleShortUrl(request, srtStr)    # 處理短網址域名
+    # 如果 URL 無效，則回傳 404
+    if not checkUrlAvailable(oriUrl):
+        return HttpResponse('URL 不存在或無法存取，請檢查是否出錯。', status=404)
+    else:
+        # 建立新的短網址並儲存進資料庫
+        url = Url.objects.create(
+            oriUrl = oriUrl,
+            srtStr = srtStr,
+            srtUrl = srtUrl,
+            creDate = datetime.datetime.now()
+        )
+        return url
 
 # GET : 以縮短網址字符查詢原網址 API /lookforOriUrl/{srtStr}
 @api.get('lookforOriUrl/{srtStr}', response=UrlSchema)
