@@ -33,6 +33,7 @@ creDate: datetime.datetime  # 創建日期
     ```bash
     DEBUG = 'True or False'
     SECRET_KEY = 'Your Django Secret Key'
+    SENTRY_CLIENT_DSN = 'Your Sentry Key'
     ```
 4. 執行此 Django 應用程式
     ```bash
