@@ -15,17 +15,21 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# 建立專案的根目錄路徑
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
+# 快速開發設定 - 不適用於生產環境
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 load_dotenv(Path.joinpath(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# 安全性警告: 請將 SECRET_KEY 保密！
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# 安全性警告: 請勿在公開環境中開啟 DEBUG！
 if os.getenv('DEBUG') == 'False':
     DEBUG = False
 else:
@@ -38,7 +42,7 @@ ALLOWED_HOSTS = [
 
 
 # Application definition
-
+# 應用程式定義
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -81,6 +85,7 @@ WSGI_APPLICATION = 'RyoURL.wsgi.application'
 
 
 # Database
+# 資料庫
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
@@ -92,6 +97,7 @@ DATABASES = {
 
 
 # Password validation
+# 密碼驗證
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -111,6 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
+# 國際化
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'zh-Hant'
@@ -119,6 +126,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
+# 靜態檔案（CSS、JavaScript、圖片）
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
@@ -127,6 +135,7 @@ MEDIA_ROOT = Path.joinpath(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 # Default primary key field type
+# 預設主鍵欄位類型
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

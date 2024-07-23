@@ -19,6 +19,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from shortURL.views import redirectShortUrl
 from shortURL.api import api
 
 urlpatterns = \
@@ -26,5 +27,5 @@ urlpatterns = \
         path('admin/', admin.site.urls),
         path('shortURL/', include('shortURL.urls')),
         path('api/', api.urls),
-        path('<str:strUrl>/', include('shortURL.urls')),
+        path('<str:srtStr>/', redirectShortUrl, name='redirectShortUrl'),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
