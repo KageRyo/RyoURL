@@ -6,6 +6,7 @@ RyoURL 是基於 Django 開發的短網址產生服務，使用者能夠創建�
 RyoURL 分別提供了一支 POST 及兩支 GET 的 API 可以使用，其 Schema 格式如下：
 ```python
 oriUrl: str                 # 原網址
+srtStr: str                 # 為了短網址生成的字符串
 srtUrl: str                 # 短網址
 creDate: datetime.datetime  # 創建日期
 ```
