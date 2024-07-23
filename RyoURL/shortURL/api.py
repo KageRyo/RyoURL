@@ -103,3 +103,13 @@ def lookforOriUrl(request, srtStr: str):
 def getAllUrl(request):
     url = Url.objects.all()
     return url
+
+# DELETE : 刪除短網址 API /deleteShortUrl/{srtStr}
+@api.delete('deleteShortUrl/{srtStr}')
+def deleteShortUrl(request, srtStr: str):
+    try:
+        url = Url.objects.get(srtStr=srtStr)
+    except Url.DoesNotExist:
+        return HttpResponse('這個短網址並不存在。', status=404)
+    url.delete()
+    return HttpResponse('成功刪除！', status=200)
