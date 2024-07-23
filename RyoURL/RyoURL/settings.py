@@ -26,7 +26,7 @@ load_dotenv(Path.joinpath(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # 安全性警告: 請將 SECRET_KEY 保密！
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # 安全性警告: 請勿在公開環境中開啟 DEBUG！
