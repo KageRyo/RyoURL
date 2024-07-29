@@ -5,24 +5,26 @@ RyoURL 是基於 Django 開發的短網址產生服務，使用者能夠創建�
 ## API
 RyoURL 分別提供了一支 POST 及兩支 GET 的 API 可以使用，其 Schema 格式如下：
 ```python
-oriUrl: str                 # 原網址
-srtStr: str                 # 為了短網址生成的字符串
-srtUrl: str                 # 短網址
-creDate: datetime.datetime  # 創建日期
+orign_url    : str                 # 原網址
+short_string : str                 # 為了短網址生成的字符串
+short_url    : str                 # 短網址
+create_date  : datetime.datetime   # 創建日期
 ```
 ### POST
-- /api/createShortUrl
+- /api/short-url
     - 提供使用者創建新的短網址
     - 創建邏輯為隨機生成 6 位數的英數亂碼，並檢查是否已經存在於資料庫，若無則建立其與原網址的關聯
-- /api/cresteCustomShortUrl
+- /api/custom-url
     - 提供使用者自訂新的短網址
 ### GET
-- /api/getOriUrl
+- /api/ (root)
+    - 可提供用於測試與 API 的連線狀態使用
+- /api/orign-url
     - 提供使用者以短網址查詢原網址
-- /api/getAllUrl
+- /api/all-url
     - 提供查詢目前所有已被建立的短網址
 ### DELETE
-- /api/deleteShortUrl
+- /api/short-url
     - 提供使用者刪除指定的短網址
 
 ## 如何在本地架設 RyoURL 環境
