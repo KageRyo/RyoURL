@@ -11,18 +11,20 @@ short_url    : str                 # 短網址
 create_date  : datetime.datetime   # 創建日期
 ```
 ### POST
-- /api/short_url
+- /api/short-url
     - 提供使用者創建新的短網址
     - 創建邏輯為隨機生成 6 位數的英數亂碼，並檢查是否已經存在於資料庫，若無則建立其與原網址的關聯
-- /api/custom_url
+- /api/custom-url
     - 提供使用者自訂新的短網址
 ### GET
-- /api/orign_url
+- /api/ (root)
+    - 可提供用於測試與 API 的連線狀態使用
+- /api/orign-url
     - 提供使用者以短網址查詢原網址
-- /api/all_url
+- /api/all-url
     - 提供查詢目前所有已被建立的短網址
 ### DELETE
-- /api/short_url
+- /api/short-url
     - 提供使用者刪除指定的短網址
 
 ## 如何在本地架設 RyoURL 環境

@@ -18,7 +18,7 @@ class UrlSchema(Schema):
     short_url: str
     create_date: datetime.datetime
 
-# 定義錯誤響應的 Schema
+# 定義錯誤回應的 Schema
 class ErrorSchema(Schema):
     message: str
 
@@ -55,7 +55,7 @@ def index(request):
     return "已與 RyoURL 建立連線。"
 
 # POST : 新增短網址 API /short_url
-@api.post("short_url", response={200: UrlSchema, 404: ErrorSchema})
+@api.post("short-url", response={200: UrlSchema, 404: ErrorSchema})
 def create_short_url(request, orign_url: str):
     orign_url = check_http_format(orign_url)
     short_string = generator_short_url()
@@ -72,7 +72,7 @@ def create_short_url(request, orign_url: str):
         return 200, url
 
 # POST : 新增自訂短網址 API /custom_url
-@api.post("custom_url", response={200: UrlSchema, 404: ErrorSchema, 403: ErrorSchema})
+@api.post("custom-url", response={200: UrlSchema, 404: ErrorSchema, 403: ErrorSchema})
 def create_custom_url(request, orign_url: str, short_string: str):
     orign_url = check_http_format(orign_url)
     short_url = handle_domain(request, short_string)
@@ -90,7 +90,7 @@ def create_custom_url(request, orign_url: str, short_string: str):
         return 200, url
 
 # GET : 以縮短網址字符查詢原網址 API /orign_url/{short_string}
-@api.get('orign_url/{short_string}', response={200: UrlSchema, 404: ErrorSchema})
+@api.get('orign-url/{short_string}', response={200: UrlSchema, 404: ErrorSchema})
 def get_short_url(request, short_string: str):
     try:
         url = Url.objects.get(short_string=short_string)
@@ -99,13 +99,13 @@ def get_short_url(request, short_string: str):
         return 404, {"message": "URL not found"}
 
 # GET : 查詢所有短網址 API /all_url
-@api.get('all_url', response=List[UrlSchema])
+@api.get('all-url', response=List[UrlSchema])
 def get_all_url(request):
     url = Url.objects.all()
     return url
  
 # DELETE : 刪除短網址 API /short_url/{short_string}
-@api.delete('short_url/{short_string}', response={200: ErrorSchema, 404: ErrorSchema})
+@api.delete('short-url/{short_string}', response={200: ErrorSchema, 404: ErrorSchema})
 def delete_short_url(request, short_string: str):
     try:
         url = Url.objects.get(short_string=short_string)
