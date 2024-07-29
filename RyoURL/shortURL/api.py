@@ -54,7 +54,7 @@ def index(request):
 @api.post("short_url", response=UrlSchema)
 def create_short_url(request, orign_url: str):
     orign_url = check_http_format(orign_url)            # 檢查 http 前綴
-    short_string = generator_short_url()                     # 產生隨機短網址字符串
+    short_string = generator_short_url()                # 產生隨機短網址字符串
     short_url = handle_domain(request, short_string)    # 處理短網址域名
     # 如果 URL 無效，則回傳 404
     if not check_url_available(orign_url):
@@ -78,7 +78,7 @@ def create_custom_url(request, orign_url: str, short_string: str):
     if not check_url_available(orign_url):
         return HttpResponse('URL 不存在或無法存取，請檢查是否出錯。', status=404)
     elif Url.objects.filter(short_url=short_url).exists():
-        return HttpResponse('自訂短網址已存在，請更換其他短網址。', status=406)
+        return HttpResponse('自訂短網址已存在，請更換其他短網址。', status=403)
     else:
         # 建立新的短網址並儲存進資料庫
         url = Url.objects.create(
