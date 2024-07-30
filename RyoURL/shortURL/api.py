@@ -56,12 +56,13 @@ def handle_domain(request, short_string):
     return f'{domain}/{short_string}'
 
 # 建立短網址物件的函式
-def create_url_entry(orign_url: HttpUrl, short_string: str, short_url: HttpUrl) -> Url:
+def create_url_entry(orign_url: HttpUrl, short_string: str, short_url: HttpUrl, expire_date: Optional[datetime.datetime] = None) -> Url:
     return Url.objects.create(
         orign_url = str(orign_url),
         short_string = short_string,
         short_url = str(short_url),
-        create_date = datetime.datetime.now()
+        create_date = datetime.datetime.now(),
+        expire_date = expire_date
     )
 
 # GET : 首頁 API /
@@ -71,20 +72,20 @@ def index(request):
 
 # POST : 新增短網址 API /short_url
 @api.post("short-url", response={200: UrlSchema, 404: ErrorSchema})
-def create_short_url(request, orign_url: HttpUrl):
+def create_short_url(request, orign_url: HttpUrl, expire_date: Optional[datetime.datetime] = None):
     short_string = generator_short_url()
     short_url = HttpUrl(handle_domain(request, short_string))
-    url = create_url_entry(orign_url, short_string, short_url)
+    url = create_url_entry(orign_url, short_string, short_url, expire_date)
     return 200, url
 
 # POST : 新增自訂短網址 API /custom_url
 @api.post("custom-url", response={200: UrlSchema, 403: ErrorSchema})
-def create_custom_url(request, orign_url: HttpUrl, short_string: str):
+def create_custom_url(request, orign_url: HttpUrl, short_string: str, expire_date: Optional[datetime.datetime] = None):
     short_url = HttpUrl(handle_domain(request, short_string))
     if Url.objects.filter(short_url=str(short_url)).exists():
         return 403, {"message": "自訂短網址已存在，請更換其他短網址。"}
     else:
-        url = create_url_entry(orign_url, short_string, short_url)
+        url = create_url_entry(orign_url, short_string, short_url, expire_date)
         return 200, url
 
 # GET : 以縮短網址字符查詢原網址 API /orign_url/{short_string}
