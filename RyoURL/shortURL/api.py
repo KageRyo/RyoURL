@@ -4,10 +4,12 @@ import datetime
 import requests
 
 from typing import List
-from ninja import NinjaAPI, Schema
 from pydantic import HttpUrl, AnyUrl
+
+from ninja import NinjaAPI, Schema
 from ninja.responses import Response
 from ninja.renderers import JSONRenderer
+from django.shortcuts import get_object_or_404
 from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Url
@@ -54,10 +56,10 @@ def handle_domain(request, short_string):
 # 建立短網址物件的函式
 def create_url_entry(orign_url: HttpUrl, short_string: str, short_url: HttpUrl) -> Url:
     return Url.objects.create(
-        orign_url=str(orign_url),
-        short_string=short_string,
-        short_url=str(short_url),
-        create_date=datetime.datetime.now()
+        orign_url = str(orign_url),
+        short_string = short_string,
+        short_url = str(short_url),
+        create_date = datetime.datetime.now()
     )
 
 # GET : 首頁 API /
@@ -74,7 +76,7 @@ def create_short_url(request, orign_url: HttpUrl):
     return 200, url
 
 # POST : 新增自訂短網址 API /custom_url
-@api.post("custom-url", response={200: UrlSchema, 404: ErrorSchema, 403: ErrorSchema})
+@api.post("custom-url", response={200: UrlSchema, 403: ErrorSchema})
 def create_custom_url(request, orign_url: HttpUrl, short_string: str):
     short_url = HttpUrl(handle_domain(request, short_string))
     if Url.objects.filter(short_url=str(short_url)).exists():
@@ -84,13 +86,10 @@ def create_custom_url(request, orign_url: HttpUrl, short_string: str):
         return 200, url
 
 # GET : 以縮短網址字符查詢原網址 API /orign_url/{short_string}
-@api.get('orign-url/{short_string}', response={200: UrlSchema, 404: ErrorSchema})
+@api.get('orign-url/{short_string}', response={200: UrlSchema})
 def get_short_url(request, short_string: str):
-    try:
-        url = Url.objects.get(short_string=short_string)    
-        return 200, url
-    except Url.DoesNotExist:
-        return 404, {"message": "URL not found"}
+    url = get_object_or_404(Url, short_string=short_string)
+    return 200, url
 
 # GET : 查詢所有短網址 API /all_url
 @api.get('all-url', response=List[UrlSchema])
@@ -99,11 +98,8 @@ def get_all_url(request):
     return url
  
 # DELETE : 刪除短網址 API /short_url/{short_string}
-@api.delete('short-url/{short_string}', response={200: ErrorSchema, 404: ErrorSchema})
+@api.delete('short-url/{short_string}', response={200: ErrorSchema})
 def delete_short_url(request, short_string: str):
-    try:
-        url = Url.objects.get(short_string=short_string)    
-        url.delete()
-        return 200, {"message": "成功刪除！"}
-    except Url.DoesNotExist:
-        return 404, {"message": "這個短網址並不存在。"}
+    url = get_object_or_404(Url, short_string=short_string)
+    url.delete()
+    return 200, {"message": "成功刪除！"}
