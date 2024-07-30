@@ -35,6 +35,7 @@ class UrlSchema(Schema):
     short_string: str
     short_url: HttpUrl
     create_date: datetime.datetime
+    visit_count: int
 
 # 定義錯誤回應的 Schema 類別
 class ErrorSchema(Schema):
