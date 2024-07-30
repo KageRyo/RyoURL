@@ -12,7 +12,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Url
 
-# 自定義 JSON 編碼器
+# 自定義 JSON 編碼器類別
 class CustomJSONEncoder(DjangoJSONEncoder):
     # 使用 DjangoJSONEncoder 的 default 方法，並判斷是否為 URL 字串 
     def default(self, obj):
@@ -20,21 +20,21 @@ class CustomJSONEncoder(DjangoJSONEncoder):
             return str(obj)         # 強制轉換為字串
         return super().default(obj) # 如果不是 URL 字串，則使用 DjangoJSONEncoder 的 default 方法
 
-# 自定義 JSON 渲染器
+# 自定義 JSON 渲染器類別
 class CustomJSONRenderer(JSONRenderer):
     encoder_class = CustomJSONEncoder
 
 # 初始化 API，並使用自定義的 JSON 渲染器
 api = NinjaAPI(renderer=CustomJSONRenderer())
 
-# 定義 Url 的 Schema
+# 定義 Url 的 Schema 類別
 class UrlSchema(Schema):
     orign_url: HttpUrl
     short_string: str
     short_url: HttpUrl
     create_date: datetime.datetime
 
-# 定義錯誤回應的 Schema
+# 定義錯誤回應的 Schema 類別
 class ErrorSchema(Schema):
     message: str
 
