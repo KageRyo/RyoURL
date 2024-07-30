@@ -106,3 +106,10 @@ def delete_short_url(request, short_string: str):
     url = get_object_or_404(Url, short_string=short_string)
     url.delete()
     return 200, {"message": "成功刪除！"}
+
+# DELETE : 刪除過期短網址 API /expire_url
+@api.delete('expire-url', response={200: ErrorSchema})
+def delete_expire_url(request):
+    url = Url.objects.filter(expire_date__lt=datetime.datetime.now())
+    url.delete()
+    return 200, {"message": "成功刪除過期的短網址！"}
