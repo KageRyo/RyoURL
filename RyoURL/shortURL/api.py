@@ -51,6 +51,15 @@ def handle_domain(request, short_string):
     domain = request.build_absolute_uri('/')[:-1].strip('/')
     return f'{domain}/{short_string}'
 
+# 建立短網址物件的函式
+def create_url_entry(orign_url: HttpUrl, short_string: str, short_url: HttpUrl) -> Url:
+    return Url.objects.create(
+        orign_url=str(orign_url),
+        short_string=short_string,
+        short_url=str(short_url),
+        create_date=datetime.datetime.now()
+    )
+
 # GET : 首頁 API /
 @api.get("/", response={200: ErrorSchema})
 def index(request):
@@ -61,12 +70,7 @@ def index(request):
 def create_short_url(request, orign_url: HttpUrl):
     short_string = generator_short_url()
     short_url = HttpUrl(handle_domain(request, short_string))
-    url = Url.objects.create(
-        orign_url = str(orign_url),
-        short_string = short_string,
-        short_url = str(short_url),
-        create_date = datetime.datetime.now()
-    )
+    url = create_url_entry(orign_url, short_string, short_url)
     return 200, url
 
 # POST : 新增自訂短網址 API /custom_url
@@ -76,19 +80,14 @@ def create_custom_url(request, orign_url: HttpUrl, short_string: str):
     if Url.objects.filter(short_url=str(short_url)).exists():
         return 403, {"message": "自訂短網址已存在，請更換其他短網址。"}
     else:
-        url = Url.objects.create(
-            orign_url = str(orign_url),
-            short_string = short_string,
-            short_url = str(short_url),
-            create_date = datetime.datetime.now()
-        )
+        url = create_url_entry(orign_url, short_string, short_url)
         return 200, url
 
 # GET : 以縮短網址字符查詢原網址 API /orign_url/{short_string}
 @api.get('orign-url/{short_string}', response={200: UrlSchema, 404: ErrorSchema})
 def get_short_url(request, short_string: str):
     try:
-        url = Url.objects.get(short_string=short_string)
+        url = Url.objects.get(short_string=short_string)    
         return 200, url
     except Url.DoesNotExist:
         return 404, {"message": "URL not found"}
@@ -103,7 +102,7 @@ def get_all_url(request):
 @api.delete('short-url/{short_string}', response={200: ErrorSchema, 404: ErrorSchema})
 def delete_short_url(request, short_string: str):
     try:
-        url = Url.objects.get(short_string=short_string)
+        url = Url.objects.get(short_string=short_string)    
         url.delete()
         return 200, {"message": "成功刪除！"}
     except Url.DoesNotExist:
