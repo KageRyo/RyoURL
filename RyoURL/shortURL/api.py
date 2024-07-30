@@ -3,7 +3,7 @@ import string
 import datetime
 import requests
 
-from typing import List
+from typing import List, Optional
 from pydantic import HttpUrl, AnyUrl
 
 from ninja import NinjaAPI, Schema
@@ -35,6 +35,7 @@ class UrlSchema(Schema):
     short_string: str
     short_url: HttpUrl
     create_date: datetime.datetime
+    expire_date: Optional[datetime.datetime]
     visit_count: int
 
 # 定義錯誤回應的 Schema 類別
