@@ -5,17 +5,33 @@ import requests
 
 from typing import List
 from ninja import NinjaAPI, Schema
+from pydantic import HttpUrl, AnyUrl
 from ninja.responses import Response
+from ninja.renderers import JSONRenderer
+from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Url
 
-api = NinjaAPI()    # 初始化 API
+# 自定義 JSON 編碼器
+class CustomJSONEncoder(DjangoJSONEncoder):
+    # 使用 DjangoJSONEncoder 的 default 方法，並判斷是否為 URL 字串 
+    def default(self, obj):
+        if isinstance(obj, AnyUrl): 
+            return str(obj)         # 強制轉換為字串
+        return super().default(obj) # 如果不是 URL 字串，則使用 DjangoJSONEncoder 的 default 方法
+
+# 自定義 JSON 渲染器
+class CustomJSONRenderer(JSONRenderer):
+    encoder_class = CustomJSONEncoder
+
+# 初始化 API，並使用自定義的 JSON 渲染器
+api = NinjaAPI(renderer=CustomJSONRenderer())
 
 # 定義 Url 的 Schema
 class UrlSchema(Schema):
-    orign_url: str
+    orign_url: HttpUrl
     short_string: str
-    short_url: str
+    short_url: HttpUrl
     create_date: datetime.datetime
 
 # 定義錯誤回應的 Schema
@@ -35,56 +51,35 @@ def handle_domain(request, short_string):
     domain = request.build_absolute_uri('/')[:-1].strip('/')
     return f'{domain}/{short_string}'
 
-# 檢查 http 前綴的函式
-def check_http_format(orign_url):
-    if not (orign_url.startswith('http://') or orign_url.startswith('https://')):
-        return f'http://{orign_url}'
-    return orign_url
-
-# 檢查 URL 是否有效的函式
-def check_url_available(orign_url):
-    try:
-        response = requests.head(orign_url, allow_redirects=True, timeout=5)
-        return response.status_code == 200
-    except:
-        return False
-    
 # GET : 首頁 API /
-@api.get("/")
+@api.get("/", response={200: ErrorSchema})
 def index(request):
-    return "已與 RyoURL 建立連線。"
+    return 200, {"message": "已與 RyoURL 建立連線。"}
 
 # POST : 新增短網址 API /short_url
 @api.post("short-url", response={200: UrlSchema, 404: ErrorSchema})
-def create_short_url(request, orign_url: str):
-    orign_url = check_http_format(orign_url)
+def create_short_url(request, orign_url: HttpUrl):
     short_string = generator_short_url()
-    short_url = handle_domain(request, short_string)
-    if not check_url_available(orign_url):
-        return 404, {"message": "URL 不存在或無法存取，請檢查是否出錯。"}
-    else:
-        url = Url.objects.create(
-            orign_url = orign_url,
-            short_string = short_string,
-            short_url = short_url,
-            create_date = datetime.datetime.now()
-        )
-        return 200, url
+    short_url = HttpUrl(handle_domain(request, short_string))
+    url = Url.objects.create(
+        orign_url = str(orign_url),
+        short_string = short_string,
+        short_url = str(short_url),
+        create_date = datetime.datetime.now()
+    )
+    return 200, url
 
 # POST : 新增自訂短網址 API /custom_url
 @api.post("custom-url", response={200: UrlSchema, 404: ErrorSchema, 403: ErrorSchema})
-def create_custom_url(request, orign_url: str, short_string: str):
-    orign_url = check_http_format(orign_url)
-    short_url = handle_domain(request, short_string)
-    if not check_url_available(orign_url):
-        return 404, {"message": "URL 不存在或無法存取，請檢查是否出錯。"}
-    elif Url.objects.filter(short_url=short_url).exists():
+def create_custom_url(request, orign_url: HttpUrl, short_string: str):
+    short_url = HttpUrl(handle_domain(request, short_string))
+    if Url.objects.filter(short_url=str(short_url)).exists():
         return 403, {"message": "自訂短網址已存在，請更換其他短網址。"}
     else:
         url = Url.objects.create(
-            orign_url = orign_url,
+            orign_url = str(orign_url),
             short_string = short_string,
-            short_url = short_url,
+            short_url = str(short_url),
             create_date = datetime.datetime.now()
         )
         return 200, url
