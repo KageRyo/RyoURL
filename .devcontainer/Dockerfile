@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y \
     git \
     vim \
     curl \
-    wget
+    wget \
+    redis-server
 
 COPY . .
 
-CMD ["bash"]
+CMD service redis-server start && python manage.py runserver 0.0.0.0:8000

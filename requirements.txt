@@ -2,6 +2,7 @@
 Django==4.2
 django-ninja
 django-cors-headers
+django-redis
 
 # 工具
 python-dotenv
