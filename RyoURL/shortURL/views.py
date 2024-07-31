@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 def is_url_expired(url):
     if url.expire_date and url.expire_date < timezone.now():
         url.delete()
-        return HttpResponse("此短網址已過期並已被刪除。", status=404)
+        return True
+    return False
 
 # 處理訪問次數與快取的函式
 def handle_visit_count(url):
@@ -37,7 +38,8 @@ def handle_visit_count(url):
 # 將短網址導向原網址的函式
 def redirectShortUrl(request, short_string):
     url = get_object_or_404(Url, short_string=short_string)
-    is_url_expired(url)  # 檢查短網址是否過期
+    if is_url_expired(url):  # 檢查短網址是否過期
+        return HttpResponse("此短網址已過期並已被刪除。", status=410)  # 401 Gone
     handle_visit_count(url) # 處理訪問次數
     
     # 將使用者重新導向至原網址
