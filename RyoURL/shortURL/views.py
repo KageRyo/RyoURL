@@ -37,10 +37,15 @@ def handle_visit_count(url):
 
 # 將短網址導向原網址的函式
 def redirectShortUrl(request, short_string):
-    url = get_object_or_404(Url, short_string=short_string)
-    if is_url_expired(url):  # 檢查短網址是否過期
-        return HttpResponse("此短網址已過期並已被刪除。", status=410)  # 401 Gone
-    handle_visit_count(url) # 處理訪問次數
+    try:
+        url = get_object_or_404(Url, short_string=short_string)
+        if is_url_expired(url):  # 檢查短網址是否過期
+            return HttpResponse("此短網址已過期並已被刪除。", status=410)  # 401 Gone
+        handle_visit_count(url) # 處理訪問次數
+            
+        # 將使用者重新導向至原網址
+        return redirect(url.orign_url)
     
-    # 將使用者重新導向至原網址
-    return redirect(url.orign_url)
+    except Exception as e:
+        logger.error(f'發生錯誤: {e}')
+        return HttpResponse("發生錯誤，請稍後再試。", status=500)
