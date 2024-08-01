@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y \
     vim \
     curl \
     wget \
-    redis-server
-
+    redis-server \
+    postgresql-client 
+    
 COPY . .
 
 CMD service redis-server start && python manage.py runserver 0.0.0.0:8000
