@@ -19,6 +19,11 @@ def is_url_expired(url):
             logger.error(f'刪除過期URL時發生錯誤: {e}')
     return False
 
+# 更新資料庫中的訪問次數的函式
+def update_visit_count(visit_count, url):
+    Url.objects.filter(id=url.id).update(visit_count=F('visit_count') + visit_count)
+    logger.debug(f'訪問次數儲存進資料庫: {visit_count}')
+
 # 處理訪問次數與快取的函式
 def handle_visit_count(url):
     # 處理快取
@@ -33,10 +38,9 @@ def handle_visit_count(url):
     visit_count = cache.incr(cache_key)     # 訪問次數加 1
     logger.debug(f'目前快取中的訪問次數: {visit_count}')
     
-    # 每 10 次訪問更新數資料庫
+    # 每 10 次訪問更新資料庫
     if visit_count % 10 == 0:
-        Url.objects.filter(id=url.id).update(visit_count=F('visit_count') + 10)
-        logger.debug(f'訪問次數儲存進資料庫: {visit_count}')
+        update_visit_count(visit_count, url)
         
     # 處理快取過期的處理（每日至少儲存至資料庫一次）
     daily_update_key = f'daily_update_{url.id}'
