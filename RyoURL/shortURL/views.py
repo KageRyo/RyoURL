@@ -1,8 +1,9 @@
 import logging
 from django.core.cache import cache
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.db.models import F
 from .models import Url
 
 # logging 的設定
@@ -11,8 +12,11 @@ logger = logging.getLogger(__name__)
 # 檢查短網址是否過期的函式
 def is_url_expired(url):
     if url.expire_date and url.expire_date < timezone.now():
-        url.delete()
-        return True
+        try:
+            url.delete()
+            return True
+        except Exception as e:
+            logger.error(f'刪除過期URL時發生錯誤: {e}')
     return False
 
 # 處理訪問次數與快取的函式
@@ -31,29 +35,30 @@ def handle_visit_count(url):
     
     # 每 10 次訪問更新數資料庫
     if visit_count % 10 == 0:
-        url.visit_count = visit_count
-        url.save()
-        logger.debug(f'訪問次數儲存進資料庫: {url.visit_count}')
+        Url.objects.filter(id=url.id).update(visit_count=F('visit_count') + 10)
+        logger.debug(f'訪問次數儲存進資料庫: {visit_count}')
         
     # 處理快取過期的處理（每日至少儲存至資料庫一次）
     daily_update_key = f'daily_update_{url.id}'
     if not cache.get(daily_update_key):
         cache.set(daily_update_key, True, timeout=60*60*24) # 快取 24 小時過期
-        url.visit_count = visit_count
-        url.save() # 存進資料庫
-        logger.debug(f'每日訪問次數儲存進資料庫: {url.visit_count}')
+        Url.objects.filter(id=url.id).update(visit_count=F('visit_count') + (visit_count % 10))
+        logger.debug(f'每日訪問次數儲存進資料庫: {visit_count}')
 
 # 將短網址導向原網址的函式
 def redirectShortUrl(request, short_string):
     try:
         url = get_object_or_404(Url, short_string=short_string)
         if is_url_expired(url):  # 檢查短網址是否過期
-            return HttpResponse("此短網址已過期並已被刪除。", status=410)  # 401 Gone
+            return HttpResponse("此短網址已過期並已被刪除。", status=410)  # 410 Gone
         handle_visit_count(url) # 處理訪問次數
             
         # 將使用者重新導向至原網址
-        return redirect(url.orign_url)
+        return HttpResponsePermanentRedirect(url.orign_url)
     
+    except Url.DoesNotExist:
+        logger.warning(f'短網址不存在: {short_string}')
+        return HttpResponse("此短網址不存在。", status=404)
     except Exception as e:
-        logger.error(f'發生錯誤: {e}')
+        logger.error(f'發生錯誤: {e}', exc_info=True)
         return HttpResponse("發生錯誤，請稍後再試。", status=500)
