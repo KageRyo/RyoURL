@@ -11,7 +11,8 @@
         "junstyle.vscode-django-support",
         "GitHub.copilot-chat",
         "GitHub.copilot",
-        "donjayamanne.python-extension-pack"
+        "donjayamanne.python-extension-pack",
+        "ms-azuretools.vscode-docker"
     ],
     "settings": {
       "python.pythonPath": "/usr/local/bin/python"
