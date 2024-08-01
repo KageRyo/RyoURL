@@ -1,13 +1,11 @@
 import random
 import string
 import datetime
-import requests
 
 from typing import List, Optional
 from pydantic import HttpUrl, AnyUrl
 
 from ninja import NinjaAPI, Schema
-from ninja.responses import Response
 from ninja.renderers import JSONRenderer
 from django.shortcuts import get_object_or_404
 from django.core.serializers.json import DjangoJSONEncoder
