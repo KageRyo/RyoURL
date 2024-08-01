@@ -36,9 +36,14 @@ else:
 
 ALLOWED_HOSTS = [
     '.ngrok-free.app',
-    '127.0.0.1'
+    '127.0.0.1',
+    'localhost',
+    '0.0.0.0'
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    'http://*.ngrok-free.app',
+]
 
 # Application definition
 # 應用程式定義
@@ -91,15 +96,19 @@ WSGI_APPLICATION = 'RyoURL.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'mydatabase'),
+        'USER': os.getenv('DB_USER', 'myuser'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'mypassword'),
+        'HOST': os.getenv('DB_HOST', 'postgresql'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": os.getenv('REDIS_URL', 'redis://redis:6379/1'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

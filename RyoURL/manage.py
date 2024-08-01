@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from django.core.management.commands.runserver import Command as runserver
+
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
@@ -15,6 +17,7 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    runserver.default_addr = '0.0.0.0'
     execute_from_command_line(sys.argv)
 
 
