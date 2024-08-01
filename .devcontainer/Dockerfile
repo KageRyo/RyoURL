@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     postgresql-client \
     procps \
-    net-tools
+    net-tools \
+    redis-tools
 
 COPY . .
 

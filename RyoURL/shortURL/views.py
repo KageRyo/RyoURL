@@ -2,7 +2,7 @@ import logging
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.http import HttpResponse, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.db.models import F
 from .models import Url
 
@@ -58,7 +58,7 @@ def redirectShortUrl(request, short_string):
         handle_visit_count(url) # 處理訪問次數
             
         # 將使用者重新導向至原網址
-        return HttpResponsePermanentRedirect(url.orign_url)
+        return HttpResponseRedirect(url.orign_url)
     
     except Url.DoesNotExist:
         logger.warning(f'短網址不存在: {short_string}')

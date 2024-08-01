@@ -41,6 +41,9 @@ ALLOWED_HOSTS = [
     '0.0.0.0'
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    'http://*.ngrok-free.app',
+]
 
 # Application definition
 # 應用程式定義
@@ -105,7 +108,7 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/1",
+        "LOCATION": os.getenv('REDIS_URL', 'redis://redis:6379/1'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

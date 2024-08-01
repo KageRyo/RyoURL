@@ -13,9 +13,13 @@
     "donjayamanne.python-extension-pack",
     "ms-azuretools.vscode-docker"
   ],
-  "forwardPorts": [8000],
+  "forwardPorts": [8000, 6379],
   "postCreateCommand": "pip install -r requirements.txt",
   "settings": {
     "python.pythonPath": "/usr/local/bin/python"
+  },
+  "remoteEnv": {
+    "DATABASE_URL": "postgres://myuser:mypassword@postgresql:5432/mydatabase",
+    "REDIS_URL": "redis://redis:6379/1"
   }
 }

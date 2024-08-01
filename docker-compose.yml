@@ -13,8 +13,6 @@ services:
     depends_on:
       - postgresql
       - redis
-    environment:
-      - DATABASE_URL=postgres://myuser:mypassword@postgresql:5432/mydatabase
 
   postgresql:
     image: postgres:13
@@ -27,6 +25,11 @@ services:
 
   redis:
     image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
 volumes:
   postgres_data:
+  redis_data:
