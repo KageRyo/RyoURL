@@ -1,20 +1,21 @@
 {
-    "name": "RyoURL Container",
-    "build": {
-      "dockerfile": "Dockerfile",
-      "context": ".."
-    },
-    "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "batisteo.vscode-django",
-        "junstyle.vscode-django-support",
-        "GitHub.copilot-chat",
-        "GitHub.copilot",
-        "donjayamanne.python-extension-pack",
-        "ms-azuretools.vscode-docker"
-    ],
-    "settings": {
-      "python.pythonPath": "/usr/local/bin/python"
-    },
+  "name": "RyoURL Container",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "web",
+  "workspaceFolder": "/workspace",
+  "extensions": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "batisteo.vscode-django",
+    "junstyle.vscode-django-support",
+    "GitHub.copilot-chat",
+    "GitHub.copilot",
+    "donjayamanne.python-extension-pack",
+    "ms-azuretools.vscode-docker"
+  ],
+  "forwardPorts": [8000],
+  "postCreateCommand": "pip install -r requirements.txt",
+  "settings": {
+    "python.pythonPath": "/usr/local/bin/python"
+  }
 }

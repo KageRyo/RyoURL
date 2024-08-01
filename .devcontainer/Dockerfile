@@ -1,5 +1,7 @@
 FROM python:3.10-slim
 
+ENV PYTHONUNBUFFERED 1
+
 WORKDIR /workspace
 
 COPY requirements.txt .
@@ -10,9 +12,10 @@ RUN apt-get update && apt-get install -y \
     vim \
     curl \
     wget \
-    redis-server \
-    postgresql-client 
-    
+    postgresql-client \
+    procps \
+    net-tools
+
 COPY . .
 
-CMD service redis-server start && python manage.py runserver 0.0.0.0:8000
+CMD ["bash"]
