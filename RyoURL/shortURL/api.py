@@ -8,6 +8,7 @@ from pydantic import HttpUrl, AnyUrl
 from ninja import NinjaAPI, Schema
 from ninja.renderers import JSONRenderer
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import get_random_string
 from django.core.serializers.json import DjangoJSONEncoder
 
 from .models import Url
@@ -40,13 +41,26 @@ class UrlSchema(Schema):
 class ErrorSchema(Schema):
     message: str
 
+# BASE62 編碼的函式
+def base62_encode(num):
+    base62 = string.digits + string.ascii_letters
+    if num == 0:
+        return base62[0]
+    array = []
+    while num:
+        num, rem = divmod(num, 62)
+        array.append(base62[rem])
+    array.reverse()
+    return ''.join(array)
+
 # 產生隨機短網址的函式
-def generator_short_url(length = 6):
-    char = string.ascii_letters + string.digits
-    while True:
-        short_url = ''.join(random.choices(char, k=length))
-        if not Url.objects.filter(short_url=short_url).exists():
-            return short_url   # 如果短網址不存在 DB 中，則回傳此短網址
+def generator_short_url(orign_url: str, length = 6):
+    hash_value = abs(hash(orign_url))   # 取得原網址的 hash 值
+    encode = base62_encode(hash_value)  # 將 hash 值轉換為 BASE62 編碼
+    if len(encode) < length:
+        encode += get_random_string(length - len(encode), string.ascii_letters + string.digits)
+        return encode
+    return encode[:length]
     
 # 處理短網址域名的函式
 def handle_domain(request, short_string):
@@ -71,7 +85,7 @@ def index(request):
 # POST : 新增短網址 API /short_url
 @api.post("short-url", response={200: UrlSchema, 404: ErrorSchema})
 def create_short_url(request, orign_url: HttpUrl, expire_date: Optional[datetime.datetime] = None):
-    short_string = generator_short_url()
+    short_string = generator_short_url(orign_url)
     short_url = HttpUrl(handle_domain(request, short_string))
     url = create_url_entry(orign_url, short_string, short_url, expire_date)
     return 200, url
