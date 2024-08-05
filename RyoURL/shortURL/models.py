@@ -1,10 +1,22 @@
-from django.db import models
 import datetime
 
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+class User(AbstractUser):
+    USER_TYPE = (
+        (1, '一般使用者'),
+        (2, '管理員'),
+    )
+    user_type = models.IntegerField(choices=USER_TYPE, default=1)  # 使用者類型
+
 class Url(models.Model):
-    orign_url = models.URLField()  # 原網址
-    short_string = models.CharField(max_length=10, unique=True, default='NULL')  # 短網址的字符串
-    short_url = models.URLField()  # 完整的短網址
-    create_date = models.DateTimeField(default=datetime.datetime.now)  # 創建日期
-    expire_date = models.DateTimeField(null=True, blank=True)  # 過期日期
-    visit_count = models.IntegerField(default=0)  # 訪問次數
+    # 短網址相關欄位
+    orign_url = models.URLField()
+    short_string = models.CharField(max_length=10, unique=True, default='NULL')
+    short_url = models.URLField()
+    create_date = models.DateTimeField(default=datetime.datetime.now)
+    expire_date = models.DateTimeField(null=True, blank=True)
+    visit_count = models.IntegerField(default=0)
+    # 使用者相關欄位
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
