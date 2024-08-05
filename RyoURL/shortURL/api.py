@@ -169,6 +169,13 @@ def get_short_url(request, short_string: str):
     url = get_object_or_404(Url, short_string=short_string)
     return 200, url
 
+# GET : 查詢自己所有短網址 API /all_myurl
+@api.get('all-myurl', response=List[UrlSchema])
+@user_is_authenticated
+def get_all_myurl(request):
+    url = Url.objects.filter(user=request.user)
+    return url
+
 # GET : 查詢所有短網址 API /all_url
 @api.get('all-url', response=List[UrlSchema])
 @user_is_admin

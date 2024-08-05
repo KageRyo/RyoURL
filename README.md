@@ -1,14 +1,17 @@
 # RyoURL
 RyoURL 是基於 Django 開發的短網址產生服務，使用者能夠創建短網址、查詢原始短網址及查看所有短網址。  
-能夠搭配 [RyoUrl-frontend](https://github.com/KageRyo/RyoURL-frontend) 使用。  
-
+- 能夠搭配 [RyoUrl-frontend](https://github.com/KageRyo/RyoURL-frontend) 使用。  
+- 能夠以 [RyoUrl-tesd](https://github.com/KageRyo/RyoURL-test) 進行單元測試。
+  
 ## API
 RyoURL 分別提供了一支 POST 及兩支 GET 的 API 可以使用，其 Schema 格式如下：
 ```python
-orign_url    : str                 # 原網址
-short_string : str                 # 為了短網址生成的字符串
-short_url    : str                 # 短網址
-create_date  : datetime.datetime   # 創建日期
+orign_url    : HttpUrl          # 原網址
+short_string : str              # 為了短網址生成的字符串
+short_url    : HttpUrl          # 短網址
+create_date  : datetime.datetime          # 創建日期
+expire_date: Optional[datetime.datetime]  # 過期時間
+visit_count: int                          # 瀏覽次數
 ```
 ### POST
 - /api/register
@@ -27,6 +30,8 @@ create_date  : datetime.datetime   # 創建日期
     - 可提供用於測試與 API 的連線狀態使用
 - /api/orign-url/{short_string}
     - 提供使用者以短網址查詢原網址
+- /api/all-myurl
+    - 提供查詢目前自己建立的短網址
 - /api/all-url
     - 提供查詢目前所有已被建立的短網址
 ### DELETE
@@ -34,7 +39,20 @@ create_date  : datetime.datetime   # 創建日期
     - 提供使用者刪除指定的短網址
 - /api/expire-url
     - 刪除過期的短網址
-
+  
+## 權限管理
+- 管理員 [2]
+    - 擁有完整權限
+- 一般使用者 [1]
+    - 產生隨機短網址
+    - 產生自訂短網址
+    - 以短網址查詢原網址
+    - 查看自己產生的所有短網址
+    - 刪除自己產生的短網址
+- 未登入的使用者 [0]
+    - 產生隨機短網址
+    - 以短網址查詢原網址
+  
 ## 如何在本地架設 RyoURL 環境
 1. 您必須先將此專案 Clone 到您的環境
     ```bash
