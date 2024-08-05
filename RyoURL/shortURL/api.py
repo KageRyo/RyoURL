@@ -145,11 +145,11 @@ def logout_user(request):
 
 # POST : 新增短網址 API /short_url
 @api.post("short-url", response={200: UrlSchema, 404: ErrorSchema})
-@user_is_authenticated
 def create_short_url(request, orign_url: HttpUrl, expire_date: Optional[datetime.datetime] = None):
     short_string = generator_short_url()
     short_url = HttpUrl(handle_domain(request, short_string))
-    url = create_url_entry(orign_url, short_string, short_url, expire_date, user=request.user)
+    user = request.user if request.user.is_authenticated else None
+    url = create_url_entry(orign_url, short_string, short_url, expire_date, user=user)
     return 200, url
 
 # POST : 新增自訂短網址 API /custom_url
@@ -171,9 +171,9 @@ def get_short_url(request, short_string: str):
 
 # GET : 查詢所有短網址 API /all_url
 @api.get('all-url', response=List[UrlSchema])
-@user_is_authenticated
+@user_is_admin
 def get_all_url(request):
-    url = Url.objects.filter(user=request.user)
+    url = Url.objects.all()
     return url
  
 # DELETE : 刪除短網址 API /short_url/{short_string}
