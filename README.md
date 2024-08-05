@@ -50,7 +50,7 @@ create_date  : datetime.datetime   # 創建日期
     ```
 
 ## 資料庫
-此專案資料庫使用 PostgreSQL，當然，您能依照需求更換成其他關聯性資料庫，包含但不限於：MySQL、sqlite3 ......。
+此專案資料庫使用 PostgreSQL。當然，您能依照需求更換成其他關聯性資料庫，包含但不限於：MySQL、sqlite3 ......等，別忘了到 `settings.py` 中進行修改。
 
 ## 開源貢獻
 歡迎對 RyoURL 做出任何形式的貢獻，您可以於 [Issues](https://github.com/KageRyo/RyoURL/issues) 提出問題或希望增加的功能，亦歡迎透過 [Pull Requests](https://github.com/KageRyo/RyoURL/pulls) 提交您的程式碼更動！
