@@ -10,7 +10,7 @@ from ninja.renderers import JSONRenderer
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponseForbidden
+from django.contrib.auth import authenticate, login, logout
 from functools import wraps
 
 from .models import Url, User
@@ -43,7 +43,12 @@ class UrlSchema(Schema):
 class ErrorSchema(Schema):
     message: str
 
-# 權限檢查裝飾器
+# 定義 User 的 Schema 類別
+class UserSchema(Schema):
+    username: str
+    password: str
+
+# 一般使用者的權限檢查裝飾器
 def user_is_authenticated(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
@@ -52,6 +57,7 @@ def user_is_authenticated(func):
         return func(request, *args, **kwargs)
     return wrapper
 
+# 管理員的權限檢查裝飾器
 def user_is_admin(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
@@ -60,6 +66,7 @@ def user_is_admin(func):
         return func(request, *args, **kwargs)
     return wrapper
 
+# 使用者是否可以編輯短網址的裝飾器
 def user_can_edit_url(func):
     @wraps(func)
     def wrapper(request, short_string, *args, **kwargs):
@@ -112,6 +119,38 @@ def create_url_entry(orign_url: HttpUrl, short_string: str, short_url: HttpUrl, 
 @api.get("/", response={200: ErrorSchema})
 def index(request):
     return 200, {"message": "已與 RyoURL 建立連線。"}
+
+# POST : 註冊 API /register
+@api.post("register", response={200: UserSchema, 400: ErrorSchema})
+def register_user(request, user_data: UserSchema):
+    try:
+        user = User.objects.create_user(
+            username = user_data.username, 
+            password = user_data.password
+            )
+        return 200, {"username": user.username}
+    except:
+        return 400, {"message": "註冊失敗"}
+    
+# POST : 登入 API /login
+@api.post("login", response={200: UserSchema, 400: ErrorSchema})
+def login_user(request, user_data: UserSchema):
+    user = authenticate(
+        username = user_data.username, 
+        password = user_data.password
+        )
+    if user:
+        login(request, user)
+        return 200, {"username": user.username}
+    else:
+        return 400, {"message": "登入失敗"}
+    
+# POST : 登出 API /logout
+@api.post("logout", response={200: ErrorSchema})
+@user_is_authenticated
+def logout_user(request):
+    logout(request)
+    return 200, {"message": "登出成功"}
 
 # POST : 新增短網址 API /short_url
 @api.post("short-url", response={200: UrlSchema, 404: ErrorSchema})

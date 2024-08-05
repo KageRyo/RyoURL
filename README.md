@@ -11,10 +11,16 @@ short_url    : str                 # 短網址
 create_date  : datetime.datetime   # 創建日期
 ```
 ### POST
+- /api/register
+    - 提供使用者註冊帳號
+- /api/login
+    - 提供使用者登入
+- /api/logout
+    - 提供使用者登出
 - /api/short-url
     - 提供使用者創建新的短網址
     - 創建邏輯為隨機生成 6 位數的英數亂碼，並檢查是否已經存在於資料庫，若無則建立其與原網址的關聯
-- /api/custom-url/
+- /api/custom-url
     - 提供使用者自訂新的短網址
 ### GET
 - /api/ (root)
