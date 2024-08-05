@@ -47,6 +47,10 @@ class ErrorSchema(Schema):
 class UserSchema(Schema):
     username: str
     password: str
+    
+# 定義 User 註冊或登入回應的 Schema 類別
+class UserResponseSchema(Schema):
+    username: str
 
 # 一般使用者的權限檢查裝飾器
 def user_is_authenticated(func):
@@ -121,24 +125,24 @@ def index(request):
     return 200, {"message": "已與 RyoURL 建立連線。"}
 
 # POST : 註冊 API /register
-@api.post("register", response={200: UserSchema, 400: ErrorSchema})
+@api.post("register", response={200: UserResponseSchema, 400: ErrorSchema})
 def register_user(request, user_data: UserSchema):
     try:
         user = User.objects.create_user(
-            username = user_data.username, 
-            password = user_data.password
-            )
+            username=user_data.username, 
+            password=user_data.password
+        )
         return 200, {"username": user.username}
     except:
         return 400, {"message": "註冊失敗"}
     
 # POST : 登入 API /login
-@api.post("login", response={200: UserSchema, 400: ErrorSchema})
+@api.post("login", response={200: UserResponseSchema, 400: ErrorSchema})
 def login_user(request, user_data: UserSchema):
     user = authenticate(
-        username = user_data.username, 
-        password = user_data.password
-        )
+        username=user_data.username, 
+        password=user_data.password
+    )
     if user:
         login(request, user)
         return 200, {"username": user.username}
