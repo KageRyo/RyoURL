@@ -9,10 +9,11 @@ from pydantic import HttpUrl, AnyUrl
 from ninja import NinjaAPI, Schema
 from ninja.security import HttpBearer
 from ninja.renderers import JSONRenderer
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+
 from django.shortcuts import get_object_or_404
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth import authenticate, login, logout
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Url, User
 
@@ -27,9 +28,19 @@ class CustomJSONEncoder(DjangoJSONEncoder):
 # 自定義 JSON 渲染器類別
 class CustomJSONRenderer(JSONRenderer):
     encoder_class = CustomJSONEncoder
+    
+# JWT 認證類別
+class JWTAuth(HttpBearer):
+    def authenticate(self, request, token):
+        try:
+            access_token = AccessToken(token)
+            user = User.objects.get(id=access_token['user_id'])
+            return user
+        except:
+            return None
 
-# 初始化 API，並使用自定義的 JSON 渲染器
-api = NinjaAPI(renderer=CustomJSONRenderer())
+# 初始化 API，並使用自定義的 JSON 渲染器及 JWT 認證
+api = NinjaAPI(renderer=CustomJSONRenderer(), auth=JWTAuth())
 
 # 定義 Url 的 Schema 類別
 class UrlSchema(Schema):
