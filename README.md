@@ -18,8 +18,8 @@ visit_count: int                          # 瀏覽次數
     - 提供使用者註冊帳號
 - /api/login
     - 提供使用者登入
-- /api/logout
-    - 提供使用者登出
+- /api/refresh-token
+    - 更新 TOKEN 權杖
 - /api/short-url
     - 提供使用者創建新的短網址
     - 創建邏輯為隨機生成 6 位數的英數亂碼，並檢查是否已經存在於資料庫，若無則建立其與原網址的關聯
