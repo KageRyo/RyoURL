@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.http import HttpResponse, HttpResponseRedirect
 from django.db.models import F
-from typing import Optional
 
 from .models import Url
 
