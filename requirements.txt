@@ -9,10 +9,6 @@ djangorestframework-simplejwt
 python-dotenv
 requests
 
-# 測試
-pytest
-pytest-django
-
 # 監控與除錯
 sentry-sdk
 django-silk

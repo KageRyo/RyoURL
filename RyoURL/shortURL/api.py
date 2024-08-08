@@ -4,8 +4,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from pydantic import AnyUrl
 
-from .apis.auth import auth_router, JWTAuth
-from .apis.short import url_router
+from .apis.auth_api import auth_router, JWTAuth
+from .apis.short_api import url_router
 
 # 自定義 JSON 編碼器和渲染器
 class CustomJSONEncoder(DjangoJSONEncoder):

@@ -27,13 +27,19 @@ class UrlSchema(Schema):
 class ErrorSchema(Schema):
     message: str
 
+# 身分驗證的函式
+def check_auth(request, required_type=None):
+    if not hasattr(request, 'auth'):
+        request.auth = None
+    if not request.auth or (required_type is not None and request.auth.user_type != required_type):
+        return False
+    return True
+
 # 權限檢查裝飾器
 def user_auth_required(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
-        if not hasattr(request, 'auth'):
-            request.auth = None
-        if not request.auth:
+        if not check_auth(request):
             return api.create_response(request, {"message": "您必須登入才能執行此操作。"}, status=403)
         return func(request, *args, **kwargs)
     return wrapper
@@ -41,9 +47,7 @@ def user_auth_required(func):
 def admin_auth_required(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
-        if not hasattr(request, 'auth'):
-            request.auth = None
-        if not request.auth or request.auth.user_type != 2:
+        if not check_auth(request, required_type=2):
             return api.create_response(request, {"message": "您必須是管理員才能執行此操作。"}, status=403)
         return func(request, *args, **kwargs)
     return wrapper
