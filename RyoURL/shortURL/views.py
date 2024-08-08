@@ -75,7 +75,7 @@ def redirectShortUrl(request, short_string: str) -> HttpResponse:
         handle_visit_count(url) # 處理訪問次數
             
         # 將使用者重新導向至原網址
-        return HttpResponseRedirect(url.orign_url)
+        return HttpResponseRedirect(url.origin_url)
     
     except Url.DoesNotExist:
         logger.warning(f'短網址不存在: {short_string}')
