@@ -12,7 +12,7 @@ class User(AbstractUser):
 
 class Url(models.Model):
     # 短網址相關欄位
-    orign_url = models.URLField()
+    origin_url = models.URLField()
     short_string = models.CharField(max_length=10, unique=True, default='NULL')
     short_url = models.URLField()
     create_date = models.DateTimeField(default=datetime.datetime.now)

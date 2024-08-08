@@ -6,40 +6,44 @@ RyoURL 是基於 Django 開發的短網址產生服務，使用者能夠創建�
 ## API
 RyoURL 分別提供了一支 POST 及兩支 GET 的 API 可以使用，其 Schema 格式如下：
 ```python
-orign_url    : HttpUrl          # 原網址
+origin_url   : HttpUrl          # 原網址
 short_string : str              # 為了短網址生成的字符串
 short_url    : HttpUrl          # 短網址
-create_date  : datetime.datetime          # 創建日期
-expire_date: Optional[datetime.datetime]  # 過期時間
-visit_count: int                          # 瀏覽次數
+create_date  : datetime.datetime            # 創建日期
+expire_date  : Optional[datetime.datetime]  # 過期時間
+visit_count  : int                          # 瀏覽次數
 ```
-### POST
-- /api/register
-    - 提供使用者註冊帳號
-- /api/login
-    - 提供使用者登入
-- /api/refresh-token
-    - 更新 TOKEN 權杖
-- /api/short-url
+### 短網址
+**POST**
+- /api/short-url/short
     - 提供使用者創建新的短網址
     - 創建邏輯為隨機生成 6 位數的英數亂碼，並檢查是否已經存在於資料庫，若無則建立其與原網址的關聯
-- /api/custom-url
+- /api/short-url/custom
     - 提供使用者自訂新的短網址
-### GET
-- /api/ (root)
-    - 可提供用於測試與 API 的連線狀態使用
-- /api/orign-url/{short_string}
+    
+**GET**
+- /api/short-url/origin/{short_string}
     - 提供使用者以短網址查詢原網址
-- /api/all-myurl
+- /api/short-url/all-my
     - 提供查詢目前自己建立的短網址
-- /api/all-url
+- /api/short-url/all
     - 提供查詢目前所有已被建立的短網址
-### DELETE
-- /api/short-url/{short_string}
+
+**DELETE**
+- /api/short-url/url/{short_string}
     - 提供使用者刪除指定的短網址
-- /api/expire-url
+- /api/short-url/expire
     - 刪除過期的短網址
-  
+
+### 帳號管理
+**POST**
+- /api/auth/register
+    - 提供使用者註冊帳號
+- /api/auth/login
+    - 提供使用者登入
+- /api/auth/refresh-token
+    - 更新 TOKEN 權杖
+    
 ## 權限管理
 - 管理員 [2]
     - 擁有完整權限
