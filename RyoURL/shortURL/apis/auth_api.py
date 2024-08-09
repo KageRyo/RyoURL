@@ -38,10 +38,14 @@ class JWTAuth(HttpBearer):
     def authenticate(self, request, token):
         try:
             access_token = AccessToken(token)
-            user = User.objects.get(id=access_token['user_id'])
-            request.auth = user
-            return user
-        except:
+            user_id = access_token['user_id']
+            user = User.objects.get(id=user_id)
+            request.auth = {
+                'user': user,
+                'user_type': user.user_type
+            }
+            return request.auth
+        except Exception:
             request.auth = None
             return None
 
