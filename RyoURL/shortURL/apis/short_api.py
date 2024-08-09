@@ -81,7 +81,6 @@ def get_short_url(request, short_string: str):
 def get_all_myurl(request):
     if not request.auth or request.auth['user_type'] != 1:
         return 403, {"message": "無權限訪問"}
-
     url = Url.objects.filter(user=request.auth['user'])
     return url
 
@@ -90,7 +89,6 @@ def get_all_myurl(request):
 def get_all_url(request):
     if not request.auth or request.auth['user_type'] != 2:
         return 403, {"message": "無權限訪問"}
-
     url = Url.objects.all()
     return url
 
@@ -99,8 +97,9 @@ def get_all_url(request):
 def delete_short_url(request, short_string: str):
     if not request.auth or request.auth['user_type'] != 1:
         return 403, {"message": "無權限訪問"}
-
     url = get_object_or_404(Url, short_string=short_string)
+    if url.user != request.auth['user']:
+        return 403, {"message": "無權限刪除此短網址"}
     url.delete()
     return 204, None
 
@@ -109,7 +108,6 @@ def delete_short_url(request, short_string: str):
 def delete_expire_url(request):
     if not request.auth or request.auth['user_type'] != 2:
         return 403, {"message": "無權限訪問"}
-
     url = Url.objects.filter(expire_date__lt=datetime.datetime.now())
     url.delete()
     return 204, None
