@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 from ninja.security import HttpBearer
 from django.contrib.auth import authenticate
@@ -91,3 +92,12 @@ def refresh_token(request, token_data: TokenSchema):
         return 200, {"access": str(refresh.access_token)}
     except TokenError:
         return 400, {"message": "無效的更新權杖"}
+    
+# GET : 查詢使用者 API /api/auth/user
+# 以使用者的 username 查 user_type
+
+# PUT : 更新使用者 API /api/auth/user
+# 以使用者的 username 更新 user_type
+
+# DELETE : 刪除使用者 API /api/auth/user
+# 以使用者的 username 刪除使用者
