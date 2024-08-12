@@ -40,7 +40,7 @@ services:
 networks:
   internal:
   shared-network:
-    external: true
+    name: shared-network
 
 volumes:
   postgres_data:
