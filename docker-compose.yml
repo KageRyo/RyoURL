@@ -13,6 +13,9 @@ services:
     depends_on:
       - postgresql
       - redis
+    networks:
+      - internal
+      - shared-network
 
   postgresql:
     image: postgres:13
@@ -22,6 +25,8 @@ services:
       POSTGRES_PASSWORD: mypassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
 
   redis:
     image: redis:latest
@@ -29,6 +34,13 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - internal
+
+networks:
+  internal:
+  shared-network:
+    external: true
 
 volumes:
   postgres_data:
