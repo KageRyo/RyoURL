@@ -16,9 +16,9 @@ class UserRouter(Router):
 
 user_router = UserRouter(tags=["user"])
 
-@user_router.get("info", auth=user_auth, response={200: UserResponseSchema, 403: ErrorSchema, 404: ErrorSchema})
+@user_router.get("info", response={200: UserResponseSchema, 403: ErrorSchema, 404: ErrorSchema})
 def get_user_info(request, username: str):
-    if username == request.auth['user'].username or request.auth['user'].user_type == 2:
+    if username == request.auth['user'].username or user_auth.admin_check(request.auth):
         try:
             user = User.objects.get(username=username)
             return 200, {"username": user.username, "user_type": user.user_type}
@@ -27,7 +27,7 @@ def get_user_info(request, username: str):
     else:
         return 403, {"message": "無權限查看其他使用者資訊"}
 
-@user_router.post("refresh-token", auth=user_auth, response={200: TokenResponseSchema, 400: ErrorSchema})
+@user_router.post("refresh-token", response={200: TokenResponseSchema, 400: ErrorSchema})
 def refresh_token(request, token_data: TokenSchema):
     try:
         refresh = RefreshToken(token_data.refresh)
