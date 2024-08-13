@@ -18,11 +18,12 @@ def register_user(request, user_data: UserSchema):
         refresh = RefreshToken.for_user(user)
         return 201, {
             "username": user.username,
+            "user_type": user.user_type,
             "access": str(refresh.access_token),
             "refresh": str(refresh)
         }
-    except:
-        return 400, {"message": "註冊失敗"}
+    except Exception as e:
+        return 400, {"message": f"註冊失敗: {str(e)}"}
     
 @auth_router.post("login", auth=None, response={200: UserResponseSchema, 400: ErrorSchema})
 def login_user(request, user_data: UserSchema):
@@ -34,6 +35,7 @@ def login_user(request, user_data: UserSchema):
         refresh = RefreshToken.for_user(user)
         return 200, {
             "username": user.username,
+            "user_type": user.user_type,
             "access": str(refresh.access_token),
             "refresh": str(refresh)
         }    

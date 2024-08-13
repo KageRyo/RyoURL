@@ -18,7 +18,7 @@ user_router = UserRouter(tags=["user"])
 
 @user_router.get("info", auth=user_auth, response={200: UserResponseSchema, 403: ErrorSchema, 404: ErrorSchema})
 def get_user_info(request, username: str):
-    if username == request.auth['user'].username or request.auth['user_type'] == 2:
+    if username == request.auth['user'].username or request.auth['user'].user_type == 2:
         try:
             user = User.objects.get(username=username)
             return 200, {"username": user.username, "user_type": user.user_type}
