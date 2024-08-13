@@ -53,20 +53,7 @@ RyoURL 提供了多種 API 端點，分為以下幾個類別：
   - 更新用戶類型 (需要管理員權限)
 - **DELETE /user/{username}**
   - 刪除用戶 (需要管理員權限)
-
-## 資料結構
-
-所有 API 使用以下資料結構：
-
-```python
-origin_url   : HttpUrl          # 原網址
-short_string : str              # 為了短網址生成的字符串
-short_url    : HttpUrl          # 短網址
-create_date  : datetime.datetime            # 創建日期
-expire_date  : Optional[datetime.datetime]  # 過期時間
-visit_count  : int                          # 瀏覽次數
-```
-
+  
 ## 權限管理
 
 - 管理員 [2]
