@@ -8,11 +8,14 @@ class JWTAuth(HttpBearer):
             access_token = AccessToken(token)
             user_id = access_token['user_id']
             user = User.objects.get(id=user_id)
-            request.auth = {
+            auth = {
                 'user': user,
                 'user_type': user.user_type
             }
-            return request.auth
+            request.auth = auth
+            return auth
         except Exception:
-            request.auth = None
             return None
+
+    def admin_check(self, auth):
+        return auth and auth['user_type'] == 2
