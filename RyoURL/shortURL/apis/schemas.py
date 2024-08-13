@@ -26,6 +26,7 @@ class UrlSchema(Schema):
     create_date: datetime.datetime
     expire_date: Optional[datetime.datetime]
     visit_count: int
+    creator_username: Optional[str] = None 
 
 class ErrorSchema(Schema):
     message: str
