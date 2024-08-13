@@ -6,7 +6,8 @@ from pydantic import AnyUrl
 
 from .apis.auth import JWTAuth
 from .apis.auth_api import auth_router
-from .apis.short_url_api import url_router
+from .apis.short_url_basic_api import short_url_router
+from .apis.short_url_with_auth_api import auth_short_url_router
 from .apis.user_api import user_router
 from .apis.admin_api import admin_router
 
@@ -26,6 +27,7 @@ api = NinjaAPI(renderer=CustomJSONRenderer(), auth=JWTAuth())
 
 # 設定路由（API子路由）
 api.add_router("/auth/", auth_router)       # 帳號系統相關 API
-api.add_router("/short-url/", url_router)   # 短網址相關 API
+api.add_router("/short-url/", short_url_router)
+api.add_router("/short-url-with-auth/", auth_short_url_router)
 api.add_router("/user/", user_router)       # 使用者相關 API
 api.add_router("/admin/", admin_router)     # 管理員相關 API

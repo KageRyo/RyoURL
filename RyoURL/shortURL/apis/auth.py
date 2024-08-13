@@ -16,6 +16,9 @@ class JWTAuth(HttpBearer):
             return auth
         except Exception:
             return None
-
+    
+    def user_check(self, auth):
+        return auth is not None
+    
     def admin_check(self, auth):
         return auth and auth['user_type'] == 2
