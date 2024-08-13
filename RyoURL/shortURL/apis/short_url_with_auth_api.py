@@ -17,32 +17,43 @@ class AuthRouter(Router):
 
 auth_short_url_router = AuthRouter(tags=["auth-short-url"])
 
-@auth_short_url_router.post("custom", auth=short_url_auth, response={201: UrlSchema, 400: ErrorSchema, 403: ErrorSchema})
+@auth_short_url_router.post("custom", response={201: UrlSchema, 400: ErrorSchema, 403: ErrorSchema})
 def create_custom_url(request, data: CustomUrlCreateSchema):
-    if request.auth['user_type'] < 1:
-        return 403, {"message": "無權限使用此功能"}
-
     short_url = handle_domain(request, data.short_string)
     if Url.objects.filter(short_string=data.short_string).exists():
         return 400, {"message": "自訂短網址已存在，請更換其他短網址。"}
     
     try:
         url = create_url_entry(data.origin_url, data.short_string, short_url, data.expire_date, user=request.auth['user'])
-        return 201, url
+        return 201, UrlSchema(
+            origin_url=url.origin_url,
+            short_string=url.short_string,
+            short_url=url.short_url,
+            create_date=url.create_date,
+            expire_date=url.expire_date,
+            visit_count=url.visit_count,
+            creator_username=url.user.username if url.user else None
+        )
     except Exception as e:
         return 400, {"message": str(e)}
 
-@auth_short_url_router.get('all-my', auth=short_url_auth, response={200: List[UrlSchema], 403: ErrorSchema})
+@auth_short_url_router.get('all-my', response={200: List[UrlSchema], 403: ErrorSchema})
 def get_all_myurl(request):
-    if request.auth['user_type'] < 1:
-        return 403, {"message": "無權限使用此功能"}
     urls = Url.objects.filter(user=request.auth['user'])
-    return 200, urls
+    return 200, [UrlSchema(
+        origin_url=url.origin_url,
+        short_string=url.short_string,
+        short_url=url.short_url,
+        create_date=url.create_date,
+        expire_date=url.expire_date,
+        visit_count=url.visit_count,
+        creator_username=url.user.username if url.user else None
+    ) for url in urls]
 
-@auth_short_url_router.delete('url/{short_string}', auth=short_url_auth, response={204: None, 404: ErrorSchema, 403: ErrorSchema})
+@auth_short_url_router.delete('url/{short_string}', response={204: None, 404: ErrorSchema, 403: ErrorSchema})
 def delete_short_url(request, short_string: str):
     url = get_object_or_404(Url, short_string=short_string)
-    if short_url_auth.admin_check(request.auth) or url.user == request.auth['user']:
+    if url.user == request.auth['user'] or short_url_auth.admin_check(request.auth):
         url.delete()
         return 204, None
     return 403, {"message": "無權限刪除此短網址"}
