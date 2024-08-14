@@ -16,6 +16,8 @@ class TokenResponseSchema(Schema):
 class UserResponseSchema(Schema):
     username: str
     user_type: int
+    access: str
+    refresh: str
 
 class UrlSchema(Schema):
     origin_url: HttpUrl

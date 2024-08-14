@@ -13,8 +13,10 @@ short_url_auth = JWTAuth()
 
 class AuthRouter(Router):
     def get_permissions(self, request):
-        if not short_url_auth.user_check(short_url_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])):
+        auth = short_url_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])
+        if not short_url_auth.user_check(auth):
             raise HttpError(status.HTTP_403_FORBIDDEN, "需要登入")
+        request.auth = auth
 
 auth_short_url_router = AuthRouter(tags=["auth-short-url"])
 
