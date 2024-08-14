@@ -5,6 +5,7 @@ import datetime
 from ninja import Router
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from ninja.errors import HttpError
 
 from .auth import JWTAuth
 from ..models import Url
@@ -39,20 +40,17 @@ def create_short_url(request, data: UrlCreateSchema):
     short_string = generate_short_url()
     short_url = handle_domain(request, short_string)
     
-    try:
-        auth = short_url_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])
-        user = auth['user']
+    auth = short_url_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])
+    user = auth['user']
 
-        url = create_url_entry(
-            origin_url=data.origin_url,
-            short_string=short_string,
-            short_url=short_url,
-            expire_date=data.expire_date,
-            user=user
-        )
-        return status.HTTP_201_CREATED, UrlSchema.from_orm(url)
-    except Exception as e:
-        return status.HTTP_400_BAD_REQUEST, ErrorSchema(message=str(e))
+    url = create_url_entry(
+        origin_url=data.origin_url,
+        short_string=short_string,
+        short_url=short_url,
+        expire_date=data.expire_date,
+        user=user
+    )
+    return status.HTTP_201_CREATED, UrlSchema.from_orm(url)
 
 @short_url_router.get("/origin/{short_string}", response={status.HTTP_200_OK: UrlSchema, status.HTTP_404_NOT_FOUND: ErrorSchema})
 def get_original_url(request, short_string: str):

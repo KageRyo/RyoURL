@@ -2,6 +2,8 @@ from django.contrib.auth import authenticate
 from ninja import Router
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
+from ninja.errors import HttpError
+from django.db import IntegrityError
 
 from .schemas import UserSchema, UserResponseSchema, ErrorSchema
 from ..models import User
@@ -16,15 +18,18 @@ def register_user(request, user_data: UserSchema):
             username=user_data.username, 
             password=user_data.password
         )
-        refresh = RefreshToken.for_user(user)
-        return status.HTTP_201_CREATED, UserResponseSchema(
-            username=user.username,
-            user_type=user.user_type,
-            access=str(refresh.access_token),
-            refresh=str(refresh)
-        )
+    except IntegrityError:
+        raise HttpError(status.HTTP_400_BAD_REQUEST, "用戶名已存在")
     except Exception as e:
-        return status.HTTP_400_BAD_REQUEST, ErrorSchema(message=f"註冊失敗: {str(e)}")
+        raise HttpError(status.HTTP_400_BAD_REQUEST, f"註冊失敗: {str(e)}")
+    
+    refresh = RefreshToken.for_user(user)
+    return status.HTTP_201_CREATED, UserResponseSchema(
+        username=user.username,
+        user_type=user.user_type,
+        access=str(refresh.access_token),
+        refresh=str(refresh)
+    )
     
 @auth_router.post("login", auth=None, response={status.HTTP_200_OK: UserResponseSchema, status.HTTP_400_BAD_REQUEST: ErrorSchema})
 def login_user(request, user_data: UserSchema):
@@ -32,13 +37,13 @@ def login_user(request, user_data: UserSchema):
         username=user_data.username, 
         password=user_data.password
     )
-    if user:
-        refresh = RefreshToken.for_user(user)
-        return status.HTTP_200_OK, UserResponseSchema(
-            username=user.username,
-            user_type=user.user_type,
-            access=str(refresh.access_token),
-            refresh=str(refresh)
-        )
-    else:
-        return status.HTTP_400_BAD_REQUEST, ErrorSchema(message="登入失敗")
+    if not user:
+        raise HttpError(status.HTTP_400_BAD_REQUEST, "登入失敗")
+    
+    refresh = RefreshToken.for_user(user)
+    return status.HTTP_200_OK, UserResponseSchema(
+        username=user.username,
+        user_type=user.user_type,
+        access=str(refresh.access_token),
+        refresh=str(refresh)
+    )

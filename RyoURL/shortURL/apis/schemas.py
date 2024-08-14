@@ -18,6 +18,10 @@ class UserResponseSchema(Schema):
     user_type: int
     access: str
     refresh: str
+    
+class UserInfoSchema(Schema):
+    username: str
+    user_type: int
 
 class UrlSchema(Schema):
     origin_url: HttpUrl

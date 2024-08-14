@@ -3,6 +3,7 @@ from ninja import Router
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 from rest_framework import status
+from django.db import IntegrityError
 
 from ..models import Url
 from .auth import JWTAuth
@@ -24,14 +25,15 @@ auth_short_url_router = AuthRouter(tags=["auth-short-url"])
 def create_custom_url(request, data: CustomUrlCreateSchema):
     short_url = handle_domain(request, data.short_string)
     if Url.objects.filter(short_string=data.short_string).exists():
-        return status.HTTP_400_BAD_REQUEST, ErrorSchema(message="自訂短網址已存在，請更換其他短網址。")
+        raise HttpError(status.HTTP_400_BAD_REQUEST, "自訂短網址已存在，請更換其他短網址。")
     
+    user = request.auth['user']
     try:
-        user = request.auth['user']
         url = create_url_entry(data.origin_url, data.short_string, short_url, data.expire_date, user=user)
-        return status.HTTP_201_CREATED, UrlSchema.from_orm(url)
-    except Exception as e:
-        return status.HTTP_400_BAD_REQUEST, ErrorSchema(message=str(e))
+    except IntegrityError:
+        raise HttpError(status.HTTP_400_BAD_REQUEST, "創建短網址失敗，可能是由於資料完整性問題。")
+    
+    return status.HTTP_201_CREATED, UrlSchema.from_orm(url)
 
 @auth_short_url_router.get('all-my', response={status.HTTP_200_OK: List[UrlSchema], status.HTTP_403_FORBIDDEN: ErrorSchema})
 def get_all_myurl(request):
@@ -44,4 +46,4 @@ def delete_short_url(request, short_string: str):
     if url.user == request.auth['user'] or short_url_auth.admin_check(request.auth):
         url.delete()
         return status.HTTP_204_NO_CONTENT, None
-    return status.HTTP_403_FORBIDDEN, ErrorSchema(message="無權限刪除此短網址")
+    raise HttpError(status.HTTP_403_FORBIDDEN, "無權限刪除此短網址")
