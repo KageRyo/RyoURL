@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from ninja import Router
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
 
 from .schemas import UserSchema, UserResponseSchema, ErrorSchema
 from ..models import User
@@ -8,7 +9,7 @@ from .auth import JWTAuth
 
 auth_router = Router(tags=["auth"])
 
-@auth_router.post("register", auth=None, response={201: UserResponseSchema, 400: ErrorSchema})
+@auth_router.post("register", auth=None, response={status.HTTP_201_CREATED: UserResponseSchema, status.HTTP_400_BAD_REQUEST: ErrorSchema})
 def register_user(request, user_data: UserSchema):
     try:
         user = User.objects.create_user(
@@ -16,16 +17,16 @@ def register_user(request, user_data: UserSchema):
             password=user_data.password
         )
         refresh = RefreshToken.for_user(user)
-        return 201, {
-            "username": user.username,
-            "user_type": user.user_type,
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        }
+        return status.HTTP_201_CREATED, UserResponseSchema(
+            username=user.username,
+            user_type=user.user_type,
+            access=str(refresh.access_token),
+            refresh=str(refresh)
+        )
     except Exception as e:
-        return 400, {"message": f"註冊失敗: {str(e)}"}
+        return status.HTTP_400_BAD_REQUEST, ErrorSchema(message=f"註冊失敗: {str(e)}")
     
-@auth_router.post("login", auth=None, response={200: UserResponseSchema, 400: ErrorSchema})
+@auth_router.post("login", auth=None, response={status.HTTP_200_OK: UserResponseSchema, status.HTTP_400_BAD_REQUEST: ErrorSchema})
 def login_user(request, user_data: UserSchema):
     user = authenticate(
         username=user_data.username, 
@@ -33,11 +34,11 @@ def login_user(request, user_data: UserSchema):
     )
     if user:
         refresh = RefreshToken.for_user(user)
-        return 200, {
-            "username": user.username,
-            "user_type": user.user_type,
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        }    
+        return status.HTTP_200_OK, UserResponseSchema(
+            username=user.username,
+            user_type=user.user_type,
+            access=str(refresh.access_token),
+            refresh=str(refresh)
+        )
     else:
-        return 400, {"message": "登入失敗"}
+        return status.HTTP_400_BAD_REQUEST, ErrorSchema(message="登入失敗")

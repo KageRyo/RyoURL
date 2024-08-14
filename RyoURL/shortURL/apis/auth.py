@@ -19,7 +19,10 @@ class JWTAuth(HttpBearer):
             return self.get_anonymous_auth()
 
     def get_anonymous_auth(self):
-        anonymous_user, _ = User.objects.get_or_create(username='anonymous', defaults={'user_type': 0})
+        anonymous_user, _ = User.objects.get_or_create(
+            username='anonymous',
+            defaults={'user_type': 0}
+        )
         return {
             'user': anonymous_user,
             'user_type': 0

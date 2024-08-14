@@ -16,8 +16,6 @@ class TokenResponseSchema(Schema):
 class UserResponseSchema(Schema):
     username: str
     user_type: int
-    access: Optional[str] = None
-    refresh: Optional[str] = None
 
 class UrlSchema(Schema):
     origin_url: HttpUrl
@@ -26,7 +24,20 @@ class UrlSchema(Schema):
     create_date: datetime.datetime
     expire_date: Optional[datetime.datetime]
     visit_count: int
-    creator_username: Optional[str] = None 
+    creator_username: Optional[str] = None
+
+    @classmethod
+    def from_orm(cls, obj):
+        data = {
+            "origin_url": obj.origin_url,
+            "short_string": obj.short_string,
+            "short_url": obj.short_url,
+            "create_date": obj.create_date,
+            "expire_date": obj.expire_date,
+            "visit_count": obj.visit_count,
+            "creator_username": obj.user.username if obj.user and obj.user.username != 'anonymous' else None
+        }
+        return cls(**data)
 
 class ErrorSchema(Schema):
     message: str
