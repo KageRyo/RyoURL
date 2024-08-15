@@ -1,10 +1,10 @@
+from http import HTTPStatus
 import random
 import string
 import datetime
 
 from ninja import Router
 from django.shortcuts import get_object_or_404
-from rest_framework import status
 from ninja.errors import HttpError
 
 from .auth import JWTAuth
@@ -35,7 +35,7 @@ def create_url_entry(origin_url, short_string, short_url, expire_date=None, user
         user=user
     )
 
-@short_url_router.post("/short", response={status.HTTP_201_CREATED: UrlSchema, status.HTTP_400_BAD_REQUEST: ErrorSchema})
+@short_url_router.post("/short", response={HTTPStatus.CREATED: UrlSchema, HTTPStatus.BAD_REQUEST: ErrorSchema})
 def create_short_url(request, data: UrlCreateSchema):
     short_string = generate_short_url()
     short_url = handle_domain(request, short_string)
@@ -50,9 +50,9 @@ def create_short_url(request, data: UrlCreateSchema):
         expire_date=data.expire_date,
         user=user
     )
-    return status.HTTP_201_CREATED, UrlSchema.from_orm(url)
+    return HTTPStatus.CREATED, UrlSchema.from_orm(url)
 
-@short_url_router.get("/origin/{short_string}", response={status.HTTP_200_OK: UrlSchema, status.HTTP_404_NOT_FOUND: ErrorSchema})
+@short_url_router.get("/origin/{short_string}", response={HTTPStatus.OK: UrlSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
 def get_original_url(request, short_string: str):
     url = get_object_or_404(Url, short_string=short_string)
-    return status.HTTP_200_OK, UrlSchema.from_orm(url)
+    return HTTPStatus.OK, UrlSchema.from_orm(url)

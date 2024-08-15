@@ -28,8 +28,8 @@ class JWTAuth(HttpBearer):
             'user_type': 0
         }
     
-    def user_check(self, auth):
-        return auth['user_type'] > 0
-    
     def admin_check(self, auth):
         return auth['user_type'] == 2
+    
+    def user_check(self, auth):
+        return auth['user_type'] > 0
