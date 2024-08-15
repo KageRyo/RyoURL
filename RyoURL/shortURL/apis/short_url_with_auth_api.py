@@ -1,9 +1,9 @@
 from http import HTTPStatus
 from typing import List
 from ninja import Router
-from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
 
 from ..models import Url
 from .auth import JWTAuth
@@ -12,14 +12,8 @@ from .short_url_basic_api import handle_domain, create_url_entry
 
 short_url_auth = JWTAuth()
 
-class AuthRouter(Router):
-    def get_permissions(self, request):
-        auth = short_url_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])
-        if not short_url_auth.user_check(auth):
-            raise HttpError(HTTPStatus.FORBIDDEN, "需要登入")
-        request.auth = auth
+auth_short_url_router = Router(auth=short_url_auth, tags=["auth-short-url"])
 
-auth_short_url_router = AuthRouter(tags=["auth-short-url"])
 
 @auth_short_url_router.post("custom", response={HTTPStatus.CREATED: UrlSchema, HTTPStatus.BAD_REQUEST: ErrorSchema, HTTPStatus.FORBIDDEN: ErrorSchema})
 def create_custom_url(request, data: CustomUrlCreateSchema):

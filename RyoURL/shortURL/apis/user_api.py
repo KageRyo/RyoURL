@@ -10,14 +10,7 @@ from .auth import JWTAuth
 
 user_auth = JWTAuth()
 
-class UserRouter(Router):
-    def get_permissions(self, request):
-        auth = user_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])
-        if not user_auth.user_check(auth):
-            raise HttpError(HTTPStatus.FORBIDDEN, "需要登入")
-        request.auth = auth
-
-user_router = UserRouter(tags=["user"])
+user_router = Router(auth=user_auth, tags=["user"])
 
 @user_router.get("info", response={HTTPStatus.OK: UserInfoSchema, HTTPStatus.FORBIDDEN: ErrorSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
 def get_user_info(request, username: str):
