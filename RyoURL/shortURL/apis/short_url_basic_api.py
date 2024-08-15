@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
 from .auth import JWTAuth
-from ..models import Url
+from ..models import Url, User
 from .schemas import UrlSchema, ErrorSchema, UrlCreateSchema
 
 jwt_auth = JWTAuth()
@@ -26,6 +26,8 @@ def handle_domain(request, short_string):
     return f'{domain}/{short_string}'
 
 def create_url_entry(origin_url, short_string, short_url, expire_date=None, user=None):
+    if user is None:
+        user, _ = User.objects.get_or_create(username='anonymous', defaults={'user_type': 0})
     return Url.objects.create(
         origin_url=str(origin_url),
         short_string=short_string,
