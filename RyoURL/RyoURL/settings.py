@@ -38,6 +38,7 @@ else:
 ALLOWED_HOSTS = [
     '.ngrok-free.app',
     '127.0.0.1',
+    '172.21.0.2',
     'localhost',
     '0.0.0.0'
 ]
