@@ -11,7 +11,7 @@ from .auth import JWTAuth
 from ..models import Url
 from .schemas import UrlSchema, ErrorSchema, UrlCreateSchema
 
-short_url_auth = JWTAuth()
+jwt_auth = JWTAuth()
 short_url_router = Router(tags=["short-url"])
 
 def generate_short_url(length=6):
@@ -40,8 +40,11 @@ def create_short_url(request, data: UrlCreateSchema):
     short_string = generate_short_url()
     short_url = handle_domain(request, short_string)
     
-    auth = short_url_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])
-    user = auth['user']
+    # 嘗試獲取認證信息，但不強制要求
+    token = request.headers.get('Authorization', '').split(' ')[-1]
+    auth = jwt_auth.authenticate(request, token) if token else None
+    
+    user = auth['user'] if auth else None
 
     url = create_url_entry(
         origin_url=data.origin_url,
