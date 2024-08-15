@@ -42,7 +42,6 @@ def create_short_url(request, data: UrlCreateSchema):
     short_string = generate_short_url()
     short_url = handle_domain(request, short_string)
     
-    # 嘗試獲取認證信息，但不強制要求
     token = request.headers.get('Authorization', '').split(' ')[-1]
     auth = jwt_auth.authenticate(request, token) if token else None
     
