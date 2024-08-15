@@ -6,19 +6,12 @@ from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
 from ..models import Url, User
-from .auth import JWTAuth
+from .auth import AdminJWTAuth
 from .schemas import UrlSchema, ErrorSchema, UserInfoSchema
 
-admin_auth = JWTAuth()
+admin_auth = AdminJWTAuth()
 
-class AdminRouter(Router):
-    def get_permissions(self, request):
-        auth = admin_auth.authenticate(request, request.headers.get('Authorization', '').split(' ')[-1])
-        if not admin_auth.admin_check(auth):
-            raise HttpError(HTTPStatus.FORBIDDEN, "需要管理員權限")
-        request.auth = auth
-
-admin_router = AdminRouter(tags=["admin"])
+admin_router = Router(auth=admin_auth)
 
 @admin_router.get('all-urls', response={HTTPStatus.OK: List[UrlSchema], HTTPStatus.FORBIDDEN: ErrorSchema})
 def get_all_url(request):
