@@ -10,13 +10,11 @@ class JWTAuth(HttpBearer):
             return self.get_anonymous_auth()
         try:
             access_token = AccessToken(token)
-            user_id = access_token['user_id']
-            user = User.objects.get(id=user_id)
-            auth = {
+            user = User.objects.get(id=access_token['user_id'])
+            return {
                 'user': user,
                 'user_type': user.user_type
             }
-            return auth
         except Exception:
             return self.get_anonymous_auth()
 

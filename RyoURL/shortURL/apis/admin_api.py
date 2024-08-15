@@ -6,12 +6,9 @@ from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
 from ..models import Url, User
-from .auth import AdminJWTAuth
 from .schemas import UrlSchema, ErrorSchema, UserInfoSchema
 
-admin_auth = AdminJWTAuth()
-
-admin_router = Router(auth=admin_auth)
+admin_router = Router()
 
 @admin_router.get('all-urls', response={HTTPStatus.OK: List[UrlSchema], HTTPStatus.FORBIDDEN: ErrorSchema})
 def get_all_url(request):

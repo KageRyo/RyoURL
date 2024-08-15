@@ -6,14 +6,10 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 
 from ..models import Url
-from .auth import JWTAuth
 from .schemas import UrlSchema, ErrorSchema, CustomUrlCreateSchema
 from .short_url_basic_api import handle_domain, create_url_entry
 
-short_url_auth = JWTAuth()
-
-auth_short_url_router = Router(auth=short_url_auth, tags=["auth-short-url"])
-
+auth_short_url_router = Router(tags=["auth-short-url"])
 
 @auth_short_url_router.post("custom", response={HTTPStatus.CREATED: UrlSchema, HTTPStatus.BAD_REQUEST: ErrorSchema, HTTPStatus.FORBIDDEN: ErrorSchema})
 def create_custom_url(request, data: CustomUrlCreateSchema):
@@ -37,7 +33,7 @@ def get_all_myurl(request):
 @auth_short_url_router.delete('url/{short_string}', response={HTTPStatus.NO_CONTENT: None, HTTPStatus.NOT_FOUND: ErrorSchema, HTTPStatus.FORBIDDEN: ErrorSchema})
 def delete_short_url(request, short_string: str):
     url = get_object_or_404(Url, short_string=short_string)
-    if url.user == request.auth['user'] or short_url_auth.admin_check(request.auth):
+    if url.user == request.auth['user'] or request.auth['user_type'] == 2:
         url.delete()
         return HTTPStatus.NO_CONTENT, None
     raise HttpError(HTTPStatus.FORBIDDEN, "無權限刪除此短網址")

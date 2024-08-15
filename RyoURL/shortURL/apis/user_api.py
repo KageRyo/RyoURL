@@ -6,15 +6,12 @@ from ninja.errors import HttpError
 
 from .schemas import UserInfoSchema, ErrorSchema, TokenSchema, TokenResponseSchema
 from ..models import User
-from .auth import JWTAuth
 
-user_auth = JWTAuth()
-
-user_router = Router(auth=user_auth, tags=["user"])
+user_router = Router(tags=["user"])
 
 @user_router.get("info", response={HTTPStatus.OK: UserInfoSchema, HTTPStatus.FORBIDDEN: ErrorSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
 def get_user_info(request, username: str):
-    if username != request.auth['user'].username and not user_auth.admin_check(request.auth):
+    if username != request.auth['user'].username and request.auth['user_type'] != 2:  # 2 represents admin
         raise HttpError(HTTPStatus.FORBIDDEN, "無權限查看其他使用者資訊")
     
     try:
