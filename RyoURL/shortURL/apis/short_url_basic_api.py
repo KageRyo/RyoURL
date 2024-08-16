@@ -3,9 +3,9 @@ import random
 import string
 import datetime
 
+from django.http import Http404
 from ninja import Router
 from django.shortcuts import get_object_or_404
-from ninja.errors import HttpError
 
 from ..models import Url, User
 from schemas.schemas import UrlSchema, ErrorSchema, UrlCreateSchema
