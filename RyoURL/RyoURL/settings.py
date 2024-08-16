@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -23,6 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 快速開發設定 - 不適用於生產環境
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 load_dotenv(Path.joinpath(BASE_DIR, '.env'))
+sys.path.append(os.path.join(BASE_DIR, 'schemas'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # 安全性警告: 請將 SECRET_KEY 保密！
@@ -57,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
+    'schemas',
     'shortURL',
     'silk',
 ]

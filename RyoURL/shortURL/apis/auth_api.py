@@ -5,9 +5,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ninja.errors import HttpError
 from django.db import IntegrityError
 
-from .schemas import UserSchema, UserResponseSchema, ErrorSchema
+from schemas.schemas import UserSchema, UserResponseSchema, ErrorSchema
 from ..models import User
-from .auth import JWTAuth
 
 auth_router = Router(tags=["auth"])
 
