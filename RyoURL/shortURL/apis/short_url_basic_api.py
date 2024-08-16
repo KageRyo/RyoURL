@@ -7,11 +7,9 @@ from ninja import Router
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 
-from .auth import JWTAuth
 from ..models import Url, User
 from .schemas import UrlSchema, ErrorSchema, UrlCreateSchema
 
-jwt_auth = JWTAuth()
 short_url_router = Router(tags=["short-url"])
 
 def generate_short_url(length=6):
@@ -42,10 +40,7 @@ def create_short_url(request, data: UrlCreateSchema):
     short_string = generate_short_url()
     short_url = handle_domain(request, short_string)
     
-    token = request.headers.get('Authorization', '').split(' ')[-1]
-    auth = jwt_auth.authenticate(request, token) if token else None
-    
-    user = auth['user'] if auth else None
+    user = request.auth.get('user') if request.auth else None
 
     url = create_url_entry(
         origin_url=data.origin_url,
@@ -54,9 +49,14 @@ def create_short_url(request, data: UrlCreateSchema):
         expire_date=data.expire_date,
         user=user
     )
-    return HTTPStatus.CREATED, UrlSchema.from_orm(url)
+    
+    response_data = UrlSchema.from_orm(url)
+    response_data.creator_username = url.user.username if url.user and url.user.username != 'anonymous' else 'anonymous'
+    return HTTPStatus.CREATED, response_data
 
 @short_url_router.get("/origin/{short_string}", response={HTTPStatus.OK: UrlSchema, HTTPStatus.NOT_FOUND: ErrorSchema})
 def get_original_url(request, short_string: str):
     url = get_object_or_404(Url, short_string=short_string)
-    return HTTPStatus.OK, UrlSchema.from_orm(url)
+    response_data = UrlSchema.from_orm(url)
+    response_data.creator_username = url.user.username if url.user and url.user.username != 'anonymous' else 'anonymous'
+    return HTTPStatus.OK, response_data
