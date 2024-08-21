@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from ninja.errors import HttpError
 
-from .schemas import UserInfoSchema, ErrorSchema, TokenSchema, TokenResponseSchema
+from schemas.schemas import UserInfoSchema, ErrorSchema, TokenSchema, TokenResponseSchema
 from ..models import User
 
 user_router = Router(tags=["user"])
