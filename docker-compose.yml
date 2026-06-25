@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/workspace
     ports:
-      - "8000:8000"
+      - "8003:8000"
     depends_on:
       - postgresql
       - redis
@@ -30,8 +30,6 @@ services:
 
   redis:
     image: redis:latest
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
