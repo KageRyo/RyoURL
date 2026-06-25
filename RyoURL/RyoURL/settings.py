@@ -26,6 +26,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(Path.joinpath(BASE_DIR, '.env'))
 sys.path.append(os.path.join(BASE_DIR, 'schemas'))
 
+def split_env_list(name):
+    return [
+        item.strip()
+        for item in os.getenv(name, '').split(',')
+        if item.strip()
+    ]
+
 # SECURITY WARNING: keep the secret key used in production secret!
 # 安全性警告: 請將 SECRET_KEY 保密！
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -42,11 +49,18 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '172.21.0.2',
     'localhost',
-    '0.0.0.0'
+    '0.0.0.0',
+    'web',
+    *split_env_list('DJANGO_ALLOWED_HOSTS'),
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://*.ngrok-free.app',
+CORS_ALLOWED_ORIGINS = []
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r'^https?://.*\.ngrok-free\.app$',
+    r'^http://localhost:\d+$',
+    r'^http://127\.0\.0\.1:\d+$',
+    *split_env_list('CORS_ALLOWED_ORIGIN_REGEXES'),
 ]
 
 # Application definition
@@ -59,6 +73,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
+    'corsheaders',
     'schemas',
     'shortURL',
     'silk',
@@ -80,6 +95,7 @@ SIMPLE_JWT = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
