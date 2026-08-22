@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+    <meta charset="utf-8">
+    <title>RyoURL 短網址系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocas-ui/5.0.2/tocas.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tocas-ui/5.0.2/tocas.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="app-topbar">
+        <div class="ts-container is-fluid">
+            <div class="topbar-grid">
+                <div class="brand">
+                    <span class="ts-icon is-link-icon"></span>
+                    <div>
+                        <div class="brand-title">RyoURL</div>
+                        <div class="brand-subtitle">短網址管理</div>
+                    </div>
+                </div>
+
+                <div class="api-control">
+                    <label for="apiBaseInput">API</label>
+                    <div class="ts-input is-dense">
+                        <input id="apiBaseInput" type="url" spellcheck="false" autocomplete="off">
+                    </div>
+                    <button id="saveApiBase" class="ts-button is-dense is-secondary" type="button">套用</button>
+                </div>
+
+                <div class="session-strip">
+                    <span id="connectionStatus" class="status-dot is-muted"></span>
+                    <span id="sessionUser">未登入</span>
+                    <button id="refreshButton" class="ts-button is-dense is-secondary is-start-icon" type="button">
+                        <span class="ts-icon is-rotate-right-icon"></span>
+                        更新 Token
+                    </button>
+                    <button id="logoutButton" class="ts-button is-dense is-outlined" type="button">登出</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="ts-container is-fluid page-shell">
+        <section id="notice" class="ts-notice has-hidden" aria-live="polite">
+            <div id="noticeTitle" class="title"></div>
+            <div id="noticeContent" class="content"></div>
+            <button id="closeNotice" class="ts-close" type="button" aria-label="關閉訊息"></button>
+        </section>
+
+        <section class="workspace-grid">
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h1>建立短網址</h1>
+                        <p>匿名或登入狀態都能建立隨機短網址。</p>
+                    </div>
+                    <span class="ts-icon is-wand-magic-sparkles-icon"></span>
+                </div>
+
+                <form id="createUrlForm" class="form-stack">
+                    <label class="field-label" for="originUrl">原始網址</label>
+                    <div class="ts-input is-solid">
+                        <input id="originUrl" type="url" placeholder="https://example.com/article" required>
+                    </div>
+
+                    <label class="field-label" for="expireDate">過期時間</label>
+                    <div class="ts-input">
+                        <input id="expireDate" type="datetime-local">
+                    </div>
+
+                    <button id="createSubmit" class="ts-button is-start-icon" type="submit">
+                        <span class="ts-icon is-link-icon"></span>
+                        建立
+                    </button>
+                </form>
+
+                <div id="createResult" class="result-box is-empty">尚未建立短網址。</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>查詢原始網址</h2>
+                        <p>輸入短碼，或貼上完整短網址。</p>
+                    </div>
+                    <span class="ts-icon is-magnifying-glass-icon"></span>
+                </div>
+
+                <form id="lookupUrlForm" class="form-stack">
+                    <label class="field-label" for="lookupShortString">短碼</label>
+                    <div class="ts-input is-solid">
+                        <input id="lookupShortString" type="text" placeholder="abc123 或 http://localhost:8003/abc123" required>
+                    </div>
+                    <button id="lookupSubmit" class="ts-button is-secondary is-start-icon" type="submit">
+                        <span class="ts-icon is-magnifying-glass-icon"></span>
+                        查詢
+                    </button>
+                </form>
+
+                <div id="lookupResult" class="result-box is-empty">尚未查詢。</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>帳號</h2>
+                        <p>登入後可建立自訂短碼並管理自己的網址。</p>
+                    </div>
+                    <span class="ts-icon is-user-icon"></span>
+                </div>
+
+                <div class="auth-grid">
+                    <form id="loginForm" class="form-stack">
+                        <div class="section-title">登入</div>
+                        <label class="field-label" for="loginUsername">使用者名稱</label>
+                        <div class="ts-input">
+                            <input id="loginUsername" type="text" autocomplete="username" required>
+                        </div>
+                        <label class="field-label" for="loginPassword">密碼</label>
+                        <div class="ts-input">
+                            <input id="loginPassword" type="password" autocomplete="current-password" required>
+                        </div>
+                        <button id="loginSubmit" class="ts-button is-start-icon" type="submit">
+                            <span class="ts-icon is-right-to-bracket-icon"></span>
+                            登入
+                        </button>
+                    </form>
+
+                    <form id="registerForm" class="form-stack">
+                        <div class="section-title">註冊</div>
+                        <label class="field-label" for="registerUsername">使用者名稱</label>
+                        <div class="ts-input">
+                            <input id="registerUsername" type="text" autocomplete="username" required>
+                        </div>
+                        <label class="field-label" for="registerPassword">密碼</label>
+                        <div class="ts-input">
+                            <input id="registerPassword" type="password" autocomplete="new-password" required>
+                        </div>
+                        <button id="registerSubmit" class="ts-button is-secondary is-start-icon" type="submit">
+                            <span class="ts-icon is-user-plus-icon"></span>
+                            建立帳號
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="panel" data-auth-panel>
+                <div class="panel-heading">
+                    <div>
+                        <h2>自訂短網址</h2>
+                        <p>短碼最多 10 個字元，需登入。</p>
+                    </div>
+                    <span class="ts-icon is-pen-to-square-icon"></span>
+                </div>
+
+                <form id="customUrlForm" class="form-stack">
+                    <label class="field-label" for="customOriginUrl">原始網址</label>
+                    <div class="ts-input is-solid">
+                        <input id="customOriginUrl" type="url" placeholder="https://example.com/product" required>
+                    </div>
+
+                    <label class="field-label" for="customShortString">自訂短碼</label>
+                    <div class="ts-input is-solid">
+                        <input id="customShortString" type="text" maxlength="10" pattern="[-A-Za-z0-9_]{1,10}" placeholder="my-link" required>
+                    </div>
+
+                    <label class="field-label" for="customExpireDate">過期時間</label>
+                    <div class="ts-input">
+                        <input id="customExpireDate" type="datetime-local">
+                    </div>
+
+                    <button id="customSubmit" class="ts-button is-start-icon" type="submit">
+                        <span class="ts-icon is-check-icon"></span>
+                        建立自訂短碼
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section class="panel table-panel" data-auth-panel>
+            <div class="panel-heading is-row">
+                <div>
+                    <h2>我的短網址</h2>
+                    <p>檢視登入帳號建立的短網址。</p>
+                </div>
+                <button id="refreshMyUrls" class="ts-button is-secondary is-start-icon" type="button">
+                    <span class="ts-icon is-rotate-right-icon"></span>
+                    重新整理
+                </button>
+            </div>
+
+            <div class="table-scroll">
+                <table class="ts-table is-celled is-striped">
+                    <thead>
+                        <tr>
+                            <th>短碼</th>
+                            <th>原始網址</th>
+                            <th>建立時間</th>
+                            <th>到期</th>
+                            <th>拜訪</th>
+                            <th class="is-collapsed">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="myUrlsBody"></tbody>
+                </table>
+            </div>
+            <div id="myUrlsEmpty" class="empty-state">登入後可檢視自己的短網址。</div>
+        </section>
+
+        <section id="adminPanel" class="panel table-panel has-hidden">
+            <div class="panel-heading is-row">
+                <div>
+                    <h2>管理員</h2>
+                    <p>檢視全站短網址與使用者。</p>
+                </div>
+                <div class="button-row">
+                    <button id="adminLoadUrls" class="ts-button is-secondary is-start-icon" type="button">
+                        <span class="ts-icon is-table-list-icon"></span>
+                        所有網址
+                    </button>
+                    <button id="adminLoadUsers" class="ts-button is-secondary is-start-icon" type="button">
+                        <span class="ts-icon is-users-icon"></span>
+                        使用者
+                    </button>
+                    <button id="adminExpireUrls" class="ts-button is-negative is-outlined is-start-icon" type="button">
+                        <span class="ts-icon is-trash-icon"></span>
+                        清除過期
+                    </button>
+                </div>
+            </div>
+            <div id="adminOutput" class="admin-output empty-state">選擇一個管理操作。</div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
