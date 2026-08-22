@@ -28,9 +28,9 @@ The source code and its commit history remain available in the imported commits 
 
 ## Remote archive checklist
 
-After this branch is merged and pushed to the canonical remote:
+The archive notice commits are prepared locally on a `docs/archive-notice` branch in each former repository. After those branches and this consolidation branch are pushed and merged:
 
-1. Add a notice at the top of each former repository README pointing to `KageRyo/RyoURL`.
+1. Merge the archive notice branch into each former repository's default branch.
 2. Archive `RyoURL-frontend`, `RyoURL-schema`, and `RyoURL-test` on GitHub.
 3. Check portfolio links, bookmarks, issue references, and clone instructions.
 4. Keep the archived repositories until all important links have been verified.
