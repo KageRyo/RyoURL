@@ -38,5 +38,16 @@ jobs:
       - name: Compile Python sources
         run: python -m compileall -q backend tests
 
+      - name: Run Django system checks
+        env:
+          DEBUG: "False"
+          SECRET_KEY: ci-only-secret
+          SENTRY_CLIENT_DSN: ""
+          DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+        run: python backend/manage.py check
+
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
+
       - name: Collect API tests
         run: pytest --collect-only -q
