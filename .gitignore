@@ -130,6 +130,11 @@ ENV/
 env.bak/
 venv.bak/
 
+# Local frontend tooling
+node_modules/
+.playwright-cli/
+.DS_Store
+
 # Spyder project settings
 .spyderproject
 .spyproject

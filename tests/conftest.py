@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 import pytest
 import requests
 from urllib.parse import urljoin
@@ -9,11 +10,16 @@ from actions.admin_actions import AdminActions
 from actions.user_actions import UserActions
 from actions.anonymous_actions import AnonymousActions
 
-# 載入 .env 文件
-load_dotenv()
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+BACKEND_ROOT = PROJECT_ROOT / "backend"
+sys.path.insert(0, str(BACKEND_ROOT))
+
+# Load project-level settings first, then test-specific settings.
+load_dotenv(PROJECT_ROOT / ".env")
+load_dotenv(Path(__file__).with_name(".env"))
 
 # 環境變數設定
-BASE_URL = os.getenv("BASE_URL")
+BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8003/api/")
 TEST_USER = {
     "username": os.getenv("TEST_USER_USERNAME"),
     "password": os.getenv("TEST_USER_PASSWORD")
@@ -22,9 +28,6 @@ ADMIN_USER = {
     "username": os.getenv("ADMIN_USER_USERNAME"),
     "password": os.getenv("ADMIN_USER_PASSWORD")
 }
-
-# 載入 Schemas 子模組
-sys.path.append(os.path.join(os.path.dirname(__file__), 'schemas'))
 
 from schemas.schemas import (UrlSchema, UserResponseSchema, UserInfoSchema,
                              ErrorSchema, UrlCreateSchema, CustomUrlCreateSchema)

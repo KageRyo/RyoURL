@@ -13,7 +13,7 @@
     "donjayamanne.python-extension-pack",
     "ms-azuretools.vscode-docker"
   ],
-  "forwardPorts": [8000, 6379],
+  "forwardPorts": [8003, 6379],
   "postCreateCommand": "pip install -r requirements.txt",
   "settings": {
     "python.pythonPath": "/usr/local/bin/python"
