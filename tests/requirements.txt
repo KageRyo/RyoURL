@@ -1,0 +1,19 @@
+# Test tooling
+pytest
+pytest-django
+pytest-cov
+locust
+
+# HTTP API client
+requests
+
+# Runtime dependencies needed by the shared API schemas and test imports
+Django==4.2
+django-ninja
+django-cors-headers
+django-redis
+djangorestframework-simplejwt
+pydantic
+python-dotenv
+Pillow
+psycopg2-binary

@@ -1,100 +1,117 @@
 # RyoURL
 
-RyoURL 是基於 Django 開發的短網址產生服務，使用者能夠創建短網址、查詢原始短網址及查看所有短網址。  
-- 能夠以 [RyoUrl-test](https://github.com/KageRyo/RyoURL-test) 進行單元測試。  
+[![CI](https://github.com/KageRyo/RyoURL/actions/workflows/ci.yml/badge.svg)](https://github.com/KageRyo/RyoURL/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.10](https://img.shields.io/badge/python-3.10-3776AB.svg)](https://www.python.org/)
+[![Django 4.2](https://img.shields.io/badge/Django-4.2-092E20.svg)](https://www.djangoproject.com/)
 
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/698a6aa8-797b-431e-b218-816e36b26db9" width="400" height="350">
-  <img src="https://github.com/user-attachments/assets/4a6bd2e2-d8c9-43aa-bdd6-ce6a305c6063" width="400" height="350">
-</div>
+RyoURL is a full-stack URL shortening service built with Django, Django Ninja, PostgreSQL, Redis, and a small static web frontend. It supports anonymous shortening, custom aliases for authenticated users, JWT authentication, expiry management, administration, and API-level testing.
 
-## API
+The project is currently maintained as a portfolio and historical full-stack project. The root of this repository is the canonical source for the backend, frontend, schemas, tests, and documentation.
 
-RyoURL 提供了多種 API 端點，分為以下幾個類別：
+## Features
 
-### 短網址相關
+- Generate six-character random short URLs.
+- Create custom aliases for authenticated users.
+- Redirect short URLs to their original destinations.
+- Track visits using Redis-backed counters.
+- Expire and remove URLs automatically when they are accessed after expiry.
+- Authenticate users with JWT access and refresh tokens.
+- Provide user and administrator API operations.
+- Validate API payloads and responses with Pydantic schemas.
+- Run black-box API tests and Locust stress tests.
 
-#### 基本短網址功能 (/api/short-url/)
+## Repository layout
 
-- **POST /short**
-  - 提供使用者創建新的隨機短網址
-  - 創建邏輯為隨機生成 6 位數的英數亂碼，並檢查是否已經存在於資料庫，若無則建立其與原網址的關聯
-- **GET /origin/{short_string}**
-  - 提供使用者以短網址查詢原網址
+```text
+.
+├── backend/
+│   ├── manage.py
+│   ├── RyoURL/                 # Django project settings and URL configuration
+│   ├── shortURL/               # Domain models, API routers, and redirect logic
+│   └── schemas/                # Shared Pydantic request/response schemas
+├── frontend/                   # Static browser client
+├── tests/
+│   ├── unit_tests/             # Black-box API tests
+│   ├── stress_tests/           # Locust users and scenarios
+│   └── actions/                # Reusable API client actions
+├── docs/
+├── docker-compose.yml
+├── requirements.txt
+└── pytest.ini
+```
 
-#### 需要認證的短網址功能 (/api/auth-short-url/)
+## Quick start with Docker Compose
 
-- **POST /custom**
-  - 提供使用者自訂新的短網址 (需要登入)
-- **GET /all-my**
-  - 提供查詢目前自己建立的所有短網址 (需要登入)
-- **DELETE /url/{short_string}**
-  - 提供使用者刪除指定的短網址 (需要登入)
+The development compose file starts PostgreSQL, Redis, and a Python development container.
 
-### 認證相關 (/api/auth/)
+```bash
+docker compose up --build -d
+docker compose exec web sh -lc 'cd /workspace/backend && python manage.py migrate'
+docker compose exec web sh -lc 'cd /workspace/backend && python manage.py runserver 0.0.0.0:8000'
+```
 
-- **POST /register**
-  - 提供使用者註冊帳號
-- **POST /login**
-  - 提供使用者登入
+The API is then available at `http://127.0.0.1:8003`. Open the frontend in a second terminal:
 
-### 用戶相關 (/api/user/)
+```bash
+python3 -m http.server 5174 --directory frontend --bind 0.0.0.0
+```
 
-- **GET /info**
-  - 獲取用戶資訊 (需要登入)
-- **POST /refresh-token**
-  - 更新 TOKEN 權杖 (需要登入)
+Open `http://127.0.0.1:5174`. The frontend defaults to `http://127.0.0.1:8003/api`; its API field can be changed when running the services on different ports.
 
-### 管理員功能 (/api/admin/)
+Copy `backend/.env.example` to `backend/.env` before changing application secrets or host settings. Never commit the resulting `.env` file.
 
-- **GET /all-urls**
-  - 獲取所有 URL (需要管理員權限)
-- **DELETE /expire-urls**
-  - 刪除過期 URL (需要管理員權限)
-- **GET /users**
-  - 獲取所有用戶 (需要管理員權限)
-- **PUT /user/{username}**
-  - 更新用戶類型 (需要管理員權限)
-- **DELETE /user/{username}**
-  - 刪除用戶 (需要管理員權限)
-  
-## 權限管理
+## Local Python setup
 
-- 管理員 [2]
-- 一般使用者 [1]
-- 未登入的使用者 [0]
+For a local Python process, install the backend dependencies and provide PostgreSQL and Redis yourself:
 
-## 如何在本地架設 RyoURL 環境
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp backend/.env.example backend/.env
+python backend/manage.py migrate
+python backend/manage.py runserver 0.0.0.0:8003
+```
 
-1. 您必須先將此專案 Clone 到您的環境
-    ```bash
-    git clone https://github.com/KageRyo/RyoURL.git
-    ```
-2. 接著安裝所需要的函式庫
-    ```bash
-    pip install -r requirements.txt
-    ```
-3. 在 RyoURL Django 專案資料夾內建立 `.env` 設定環境變數，範例如下：
-    ```bash
-    DEBUG = 'True or False'
-    SECRET_KEY = 'Your Django Secret Key'
-    SENTRY_CLIENT_DSN = 'Your Sentry Key'
-    ```
-4. 執行此 Django 應用程式
-    ```bash
-    python manage.py runserver
-    ```
+When services are not running in Compose, set `DB_HOST`, `DB_PORT`, and `REDIS_URL` in `backend/.env` for your local services.
 
-## 資料庫
+## API and development documentation
 
-此專案資料庫使用 PostgreSQL。當然，您能依照需求更換成其他關聯性資料庫，包含但不限於：MySQL、sqlite3 ......等，別忘了到 `settings.py` 中進行修改。
+- [Architecture](docs/architecture.md)
+- [API reference](docs/api.md)
+- [Database and persistence](docs/database.md)
+- [Deployment and configuration](docs/deployment.md)
+- [Testing](docs/testing.md)
+- [Repository migration and cleanup](docs/repository-migration.md)
 
-## 開源貢獻
+The Django Ninja OpenAPI document is served at `/api/openapi.json` while the backend is running.
 
-歡迎對 RyoURL 做出任何形式的貢獻，您可以於 [Issues](https://github.com/KageRyo/RyoURL/issues) 提出問題或希望增加的功能，亦歡迎透過 [Pull Requests](https://github.com/KageRyo/RyoURL/pulls) 提交您的程式碼更動！
+## Testing
 
-## LICENSE
+Install the test dependencies, copy `tests/.env.example` to `tests/.env`, start the API, and run:
 
-此專案採用 [MIT License](License) 開源條款，
-有任何問題也歡迎向我聯繫。  
-電子信箱：[kageryo@coderyo.com](mailto:kageryo@coderyo.com) 。
+```bash
+pip install -r tests/requirements.txt
+pytest
+```
+
+The test suite is an API-level suite and expects credentials for a normal user and an administrator. See [Testing](docs/testing.md) for the required environment variables and Locust commands.
+
+## Repository consolidation
+
+The histories of the former `RyoURL-frontend`, `RyoURL-schema`, and `RyoURL-test` repositories were imported into this repository with their commit graphs intact. Their current code lives under `frontend/`, `backend/schemas/`, and `tests/` respectively. The old repositories should be archived after the canonical repository is published; they should not be deleted until their redirect notices and external links have been checked.
+
+## Contributing
+
+Use a standard GitHub Flow branch name such as `feature/<short-description>`, `fix/<short-description>`, or `refactor/<short-description>`. Commit messages follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/), for example:
+
+```text
+feat(api): add URL expiry filtering
+fix(frontend): handle an expired access token
+docs: clarify local setup
+```
+
+## License
+
+RyoURL is released under the [MIT License](LICENSE).

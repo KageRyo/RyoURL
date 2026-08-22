@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
-import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -24,7 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 快速開發設定 - 不適用於生產環境
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 load_dotenv(Path.joinpath(BASE_DIR, '.env'))
-sys.path.append(os.path.join(BASE_DIR, 'schemas'))
 
 def split_env_list(name):
     return [
@@ -47,7 +45,6 @@ else:
 ALLOWED_HOSTS = [
     '.ngrok-free.app',
     '127.0.0.1',
-    '172.21.0.2',
     'localhost',
     '0.0.0.0',
     'web',

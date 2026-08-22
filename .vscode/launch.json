@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python 偵錯工具: Django",
+            "name": "Django development server",
             "type": "debugpy",
             "request": "launch",
             "args": [
@@ -13,7 +13,7 @@
             ],
             "django": true,
             "autoStartBrowser": false,
-            "program": "${workspaceFolder}/RyoURL/manage.py"
+            "program": "${workspaceFolder}/backend/manage.py"
         }
     ]
 }
