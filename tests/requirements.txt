@@ -1,0 +1,27 @@
+# 測試框架
+pytest
+pytest-django
+locust
+
+# 覆蓋率報告
+pytest-cov
+
+# API 測試
+requests
+
+# 後端依賴（與主要專案保持一致）
+Django==4.2
+django-ninja
+django-cors-headers
+django-redis
+djangorestframework-simplejwt
+
+# 工具
+pydantic
+python-dotenv
+
+# 圖片處理
+Pillow
+
+# 資料庫
+psycopg2-binary
