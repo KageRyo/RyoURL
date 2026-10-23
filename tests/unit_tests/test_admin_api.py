@@ -11,7 +11,6 @@ def test_admin_can_access_all_urls(admin_actions):
     response = admin_actions.get_all_urls()
     assert response.status_code == HTTPStatus.OK
     urls = [UrlSchema(**url) for url in response.json()]
-    assert isinstance(urls, list)
 
 # DELETE /admin/expire-urls 刪除過期短網址
 def test_admin_can_expire_urls(admin_actions):
@@ -23,7 +22,6 @@ def test_admin_can_get_all_users(admin_actions):
     response = admin_actions.get_all_users()
     assert response.status_code == HTTPStatus.OK
     users = [UserInfoSchema(**user) for user in response.json()]
-    assert isinstance(users, list)
     assert len(users) > 0
 
 # PUT /admin/user/{username} 更新使用者身分

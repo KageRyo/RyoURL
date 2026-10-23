@@ -8,7 +8,7 @@ locust
 requests
 
 # Runtime dependencies needed by the shared API schemas and test imports
-Django==4.2
+Django==5.2.18
 django-ninja
 django-cors-headers
 django-redis

@@ -1,5 +1,5 @@
 # Django 和相關依賴
-Django==4.2
+Django==5.2.18
 django-ninja
 django-cors-headers
 django-redis
