@@ -42,7 +42,6 @@ def test_user_can_get_all_my_urls(user_actions):
     response = user_actions.get_all_my_urls()
     assert response.status_code == HTTPStatus.OK
     urls = [UrlSchema(**url) for url in response.json()]
-    assert isinstance(urls, list)
     for url in urls:
         assert url.creator_username == "test_user_0000"
 
