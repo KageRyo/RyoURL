@@ -38,12 +38,33 @@ def test_user_can_create_custom_url(user_actions):
     assert url.creator_username == "test_user_0000"
 
 # GET /short-url-with-auth/all-my 取得所有自己的短網址 (已登入用戶)
-def test_user_can_get_all_my_urls(user_actions):
-    response = user_actions.get_all_my_urls()
-    assert response.status_code == HTTPStatus.OK
-    urls = [UrlSchema(**url) for url in response.json()]
-    for url in urls:
-        assert url.creator_username == "test_user_0000"
+def test_user_can_get_all_my_urls(user_actions, admin_actions):
+    own_string = generate_random_string(10)
+    foreign_string = generate_random_string(10)
+    own_response = user_actions.create_custom_url("https://www.example.com/owned", own_string)
+    assert own_response.status_code == HTTPStatus.CREATED
+    own = UrlSchema(**own_response.json())
+    foreign_created = False
+    try:
+        foreign_response = admin_actions.create_custom_url(
+            "https://www.example.com/foreign", foreign_string
+        )
+        foreign_created = foreign_response.status_code == HTTPStatus.CREATED
+        assert foreign_created
+        foreign = UrlSchema(**foreign_response.json())
+        assert own.creator_username != foreign.creator_username
+
+        response = user_actions.get_all_my_urls()
+        assert response.status_code == HTTPStatus.OK
+        urls = [UrlSchema(**url) for url in response.json()]
+        returned_ids = {url.short_string for url in urls}
+        assert own.short_string in returned_ids
+        assert foreign.short_string not in returned_ids
+        assert all(url.creator_username == own.creator_username for url in urls)
+    finally:
+        user_actions.delete_url(own_string)
+        if foreign_created:
+            admin_actions.delete_url(foreign_string)
 
 # DELETE /short-url-with-auth/url/{short_string} 刪除短網址 (已登入用戶)
 def test_user_can_delete_own_url(user_actions):
