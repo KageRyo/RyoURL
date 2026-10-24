@@ -72,13 +72,15 @@ def api_client():
 
 # 一般使用者客戶端
 @pytest.fixture
-def user_client(api_client):
+def user_client():
+    api_client = APIClient(BASE_URL)
     api_client.login(TEST_USER["username"], TEST_USER["password"])
     return api_client
 
 # 管理員客戶端
 @pytest.fixture
-def admin_client(api_client):
+def admin_client():
+    api_client = APIClient(BASE_URL)
     api_client.login(ADMIN_USER["username"], ADMIN_USER["password"])
     return api_client
 
